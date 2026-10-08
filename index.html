@@ -94,12 +94,12 @@
         <p class="text-sm max-w-md mb-6 text-slate-400">
           Hệ thống hỗ trợ tự động bôi đen tô sáng, tính giờ làm bài chuẩn IELTS, tự động chấm điểm và xem giải thích chi tiết.
         </p>
-        <div class="flex gap-3">
-          <button onclick="loadDefaultPassage('voynich')" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
-            📖 Mở bài "The Voynich Manuscript" (Izone)
+        <div class="flex flex-wrap justify-center gap-3">
+          <button onclick="loadDefaultPassage('info_theory')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
+            📖 Mở bài "Information Theory – The Big Idea" (IZONE)
           </button>
-          <button onclick="openParserModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
-            🌐 Nhập bằng Link URL / Dán văn bản
+          <button onclick="loadDefaultPassage('voynich')" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
+            📖 Mở bài "The Voynich Manuscript" (IZONE)
           </button>
         </div>
       </div>
@@ -206,11 +206,11 @@
       </div>
       
       <div class="p-6 overflow-y-auto space-y-4 custom-scroll text-xs">
-        <!-- METHOD 1: URL FETCH -->
+        <!-- METHOD 1: URL FETCH WITH MULTI-PROXY AUTO RETRY -->
         <div class="bg-indigo-950/40 border border-indigo-500/30 p-4 rounded-xl space-y-2">
           <label class="block font-bold text-indigo-300 text-xs">🔗 CÁCH 1: NHẬP ĐƯỜNG LINK WEBSITE (URL)</label>
           <div class="flex gap-2">
-            <input type="url" id="parse-url" placeholder="https://www.izone.edu.vn/luyen-thi-ielts/the-voynich-manuscript-ielts-reading/" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:border-indigo-500 focus:outline-none text-xs">
+            <input type="url" id="parse-url" placeholder="https://www.izone.edu.vn/luyen-thi-ielts/information-theory-the-big-idea-ielts-reading/" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:border-indigo-500 focus:outline-none text-xs">
             <button onclick="fetchAndParseFromUrl()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-lg shrink-0 shadow transition flex items-center gap-1">
               <span>📥 Tải Bài Từ Link</span>
             </button>
@@ -226,7 +226,7 @@
 
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Tên Bài Đọc / Nguồn</label>
-          <input type="text" id="parse-title" placeholder="VD: The Voynich Manuscript - Izone Reading 6.0+" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
+          <input type="text" id="parse-title" placeholder="VD: Information theory the big idea - Izone Reading" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
         </div>
 
         <div>
@@ -240,12 +240,12 @@
 
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Nội dung Bài Đọc (Passage Text)</label>
-          <textarea id="parse-passage" rows="5" placeholder="Nội dung bài đọc sẽ tự động điền vào đây khi bấm 'Tải Bài Từ Link' hoặc bạn có thể dán thủ công vào..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
+          <textarea id="parse-passage" rows="5" placeholder="Nội dung bài đọc sẽ tự động điền vào đây..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
         </div>
 
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Cụm Câu Hỏi & Bảng Đáp Án</label>
-          <textarea id="parse-raw-questions" rows="5" placeholder="Phần câu hỏi và đáp án tự động điền vào đây... (Ví dụ: 27. TRUE, 28. NOT GIVEN, 35. microscope...)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
+          <textarea id="parse-raw-questions" rows="5" placeholder="Phần câu hỏi và đáp án tự động điền vào đây..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
         </div>
       </div>
 
@@ -308,8 +308,54 @@
 
   <!-- APPLICATION LOGIC JS -->
   <script>
-    // PRE-LOADED SAMPLE DATA (Including full Voynich Manuscript from Izone URL requested by user)
+    // PRE-LOADED SAMPLE DATA
     const SAMPLE_DATA = [
+      {
+        id: 's_info_theory',
+        title: 'Information Theory – The Big Idea',
+        kind: 'text',
+        tag: 'izone',
+        body: `Paragraph A
+In April 2002 an event took place which demonstrated one of the many applications of information theory. The space probe, Voyager I, launched in 1977, had sent back spectacular images of Jupiter and Saturn and then soared out of the Solar System on a one-way mission to the stars. After 25 years of exposure to the freezing temperatures of deep space, the probe was beginning to show its age. Sensors and circuits were on the brink of failing and NASA experts realized that they had to do something or lose contact with their probe forever. The solution was to get a message to Voyager I to instruct it to use spares to change the failing parts. With the probe 12 billion kilometers from Earth, this was not an easy task. By means of a radio dish belonging to NASA’s Deep Space Network, the message was sent out into the depths of space. Even travelling at the speed of light, it took over 11 hours to reach its target, far beyond the orbit of Pluto. Yet, incredibly, the little probe managed to hear the faint call from its home planet, and successfully made the switchover.
+
+Paragraph B
+It was the longest-distance repair job in history, and a triumph for the NASA engineers. But it also highlighted the astonishing power of the techniques developed by American communications engineer Claude Shannon, who had died just a year earlier. Born in 1916 in Petoskey, Michigan, Shannon showed an early talent for maths and for building gadgets, and made breakthroughs in the foundations of computer technology when still a student. While at Bell laboratories, Shannon developed information theory, but shunned the resulting acclaim. In the 1940s, he singlehandedly created an entire science of communication which has since inveigled its way into a host of applications, from DVDs to satellite communication to bar codes – any area, in short, where data has to be conveyed rapidly yet accurately.
+
+Paragraph C
+This all seems light years away from the down-to-earth uses Shannon originally had for his work, which began when he was a 22-year-old graduate engineering student at the prestigious Massachusetts Institute of Technology in 1939. He set out with an apparently simple aim: to pin down the precise meaning of the concept of 'information'. The most basic form of information, Shannon argued, is whether something is true or false – which can be captured in the binary unit, or 'bit', of the form 1 or 0. Having identified this fundamental unit, Shannon set about defining otherwise vague ideas about information and how to transmit it from place to place. In the process he discovered something surprising: it is always possible to guarantee information will get through random interference – 'noise' – intact.
+
+Paragraph D
+Noise usually means unwanted sounds which interfere with genuine information. Information theory generalizes this idea via theorems that capture the effects of noise with mathematical precision. In particular, Shannon showed that noise sets a limit on the rate at which information can pass along communication channels while remaining error-free. This rate depends on the relative strengths of the signal and noise travelling down the communication channel, and on its capacity (its 'bandwidth'). The resulting limit, given in units of bits per second, is the absolute maximum rate of error-free communication given signal strength and noise level. The trick, Shannon showed, is to find ways of packaging up – 'coding' – information to cope with the ravages of noise, while staying within the information carrying capacity 'bandwidth' – of the communication system being used.
+
+Paragraph E
+Over the years scientists have devised many such coding methods, and they have proved crucial in many technological feats. The Voyager spacecraft transmitted data using codes which added one extra bit for every single bit of information; the result was an error rate of just one bit in 10,000 — and stunningly clear pictures of the planets. Other codes have become parts of everyday life – such as the Universal Product Code, or bar code, which uses a simple error-detecting system that ensures supermarket check-out lasers can read the price even on, say, a crumpled bag of crisps. As recently as 1993, engineers made a major breakthrough by discovering so-called turbo codes – which come very close to Shannon’s ultimate limit for the maximum rate that data can be transmitted reliably, and now play a key role in the mobile videophone revolution.
+
+Paragraph F
+Shannon also laid the foundations of more efficient ways of storing information, by stripping out superfluous ('redundant') bits from data which contributed little real information. As mobile phone text messages like 'I CN C U' show, it is often possible to leave out a lot of data without losing much meaning. As with error correction, however, there's a limit beyond which messages become too ambiguous. Shannon showed how to calculate this limit, opening the way to the design of compression methods that cram maximum information into the minimum space.`,
+        qs: [
+          // Questions 27-32 Matching Paragraphs
+          { num: 27, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'an explanation of the factors affecting the transmission of information', ans: 'D', exp: 'Đoạn D giải thích các yếu tố như noise (nhiễu), bandwidth (băng thông) và signal strength.' },
+          { num: 28, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'an example of how unnecessary information can be omitted', ans: 'F', exp: 'Đoạn F đưa ra ví dụ tin nhắn SMS "I CN C U" chứng minh việc bớt thông tin thừa.' },
+          { num: 29, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'a reference to Shannon\'s attitude to fame', ans: 'B', exp: 'Đoạn B nêu Shannon "shunned the resulting acclaim" (tránh xa danh tiếng).' },
+          { num: 30, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'details of a machine capable of interpreting incomplete information', ans: 'E', exp: 'Đoạn E nhắc tới laser siêu thị đọc mã vạch trên vỏ khoai tây chiên bị nhăn.' },
+          { num: 31, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'a detailed account of an incident involving information theory', ans: 'A', exp: 'Đoạn A kể chi tiết sự cố tàu vũ trụ Voyager I gửi tín hiệu sửa chữa từ ngoài vũ trụ.' },
+          { num: 32, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'a reference to what Shannon initially intended to achieve in his research', ans: 'C', exp: 'Đoạn C nêu mục tiêu ban đầu năm 1939: "to pin down the precise meaning of concept of information".' },
+
+          // Questions 33-39 Sentence Completion
+          { num: 33, section: 'Questions 33-39: Complete the notes below (NO MORE THAN TWO WORDS)', type: 'text', text: 'The Voyager I Space Probe transmitted pictures of both ...', ans: 'Jupiter', exp: 'Đoạn A: "images of Jupiter and Saturn".' },
+          { num: 34, section: 'Questions 33-39: Complete the notes', type: 'text', text: '... and then left the Solar System.', ans: 'Saturn', exp: 'Đoạn A: "Jupiter and Saturn".' },
+          { num: 35, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'and soared out of the ...', ans: 'Solar System', exp: 'Đoạn A: "out of the Solar System".' },
+          { num: 36, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'Scientists feared that both the ... and circuits were on the brink of failing.', ans: 'Sensors', exp: 'Đoạn A: "Sensors and circuits were on the brink of failing".' },
+          { num: 37, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'Sensors and ... were on the brink of failing.', ans: 'Circuits', exp: 'Đoạn A: "Sensors and circuits".' },
+          { num: 38, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'The solution was to instruct it to use ... to change failing parts.', ans: 'Spares', exp: 'Đoạn A: "instruct it to use spares".' },
+          { num: 39, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'By means of a ... belonging to NASA\'s Deep Space Network.', ans: 'Radio dish', exp: 'Đoạn A: "radio dish belonging to NASA\'s Deep Space Network".' },
+
+          // Questions 40-42 True/False/Not Given
+          { num: 40, section: 'Questions 40-42: True / False / Not Given', type: 'tfng', text: 'The concept of describing something as true or false was the starting point for Shannon in his attempts to send messages.', ans: 'TRUE', exp: 'Đoạn C: "The most basic form... whether something is true or false - which can be captured in binary bit".' },
+          { num: 41, section: 'Questions 40-42: True / False / Not Given', type: 'tfng', text: 'The amount of information that can be sent in a given time period is determined with reference to signal strength and noise level.', ans: 'TRUE', exp: 'Đoạn D: "maximum rate... given signal strength and noise level".' },
+          { num: 42, section: 'Questions 40-42: True / False / Not Given', type: 'tfng', text: 'Products have now been developed which can convey more information than Shannon had anticipated as possible.', ans: 'FALSE', exp: 'Đoạn E: Turbo codes "come very close to Shannon\'s ultimate limit", chứ không vượt qua được hạn mức Shannon đưa ra.' }
+        ]
+      },
       {
         id: 's_voynich',
         title: 'The Voynich Manuscript',
@@ -333,48 +379,26 @@ More recently, Dr. Gabriel Landini used spectral analysis and computational ling
 Paragraph F
 Despite remaining unsolved, interest in the Voynich manuscript extends far beyond academics and codebreakers. Today, the manuscript is housed in Yale University’s Beinecke Rare Book and Manuscript Library (MS 408). Unlike many rare ancient texts hidden behind lock and key, high-resolution digital scans of the entire Voynich manuscript have been made freely available to the public online, allowing anyone in the world to attempt solving one of history’s greatest linguistic mysteries.`,
         qs: [
-          // Questions 27-30 (True/False/Not Given)
-          { num: 27, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'It is uncertain when the Voynich manuscript was written.', ans: 'TRUE', exp: 'Đoạn A nêu "However, the origin, language, and date of the manuscript\'s creation remain subjects of debate" -> Chưa chắc chắn ngày sáng tạo.' },
-          { num: 28, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'Wilfrid Voynich donated the manuscript to the Beinecke Library.', ans: 'NOT GIVEN', exp: 'Bài nói Voynich mua nó năm 1912 và hiện nay nó nằm ở Beinecke Library, nhưng không hề đề cập Voynich có quyên góp (donate) nó hay không.' },
-          { num: 29, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'Interest in the Voynich manuscript extends beyond that of academics and professional code breakers.', ans: 'TRUE', exp: 'Đoạn F nêu "interest in the Voynich manuscript extends far beyond academics and codebreakers" -> Đúng.' },
-          { num: 30, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'The text of the Voynich manuscript contains just under 70 symbols.', ans: 'FALSE', exp: 'Đoạn C nêu script dùng khoảng "20 to 30 distinct characters", chứ không phải gần 70 ký tự.' },
-          
-          // Questions 31-34 (Matching People A-H)
-          // List of People: A. Gordon Rugg, B. Roger Bacon, C. William Newbold, D. William Friedman, E. Rob Churchill, F. Gabriel Landini, G. Ren Zandbergen, H. Girolamo Cardano
-          { num: 31, section: 'Questions 31-34: Matching People (A-H)\nA. Gordon Rugg | B. Roger Bacon | C. William Newbold | D. William Friedman\nE. Rob Churchill | F. Gabriel Landini | G. Ren Zandbergen | H. Girolamo Cardano', type: 'match', text: 'The number of times some words occur make it unlikely that the manuscript is based on an authentic language.', ans: 'D', exp: 'Đoạn D đề cập William Friedman phân tích tần suất từ/cấu trúc và kết luận đó là artificial language.' },
-          { num: 32, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'Unlike some other similar objects of fascination, people can gain direct access to the Voynich manuscript.', ans: 'A', exp: 'Gordon Rugg nhận định công chúng có thể tiếp cận trực tiếp bản quét số hóa (digital scans).' },
-          { num: 33, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'The person who wrote the manuscript may not have been entirely sane.', ans: 'E', exp: 'Đoạn E: Rob Churchill suggested that the author might not have been entirely sane.' },
-          { num: 34, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'It is likely that the author of the manuscript is the same person as suggested by Wilfrid Voynich.', ans: 'C', exp: 'Đoạn D: William Newbold đã đưa ra giả thiết liên quan tới tác giả Roger Bacon như Voynich gợi ý.' },
-
-          // Questions 35-39 (Completion)
-          { num: 35, section: 'Questions 35-39: Complete the sentences (NO MORE THAN TWO WORDS)', type: 'text', text: 'William Newbold believed that the author of the Voynich manuscript had been able to look at cells through a...', ans: 'microscope', exp: 'Đoạn D: "microscopic shorthand notes" -> microscope.' },
-          { num: 36, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'William Friedman concluded that the manuscript was written in an artificial language that was based on...', ans: 'concepts', exp: 'Đoạn D: "artificial language based on logical concepts".' },
-          { num: 37, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'He couldn\'t find out the meaning of this language but he believed that the ... would continue to bring advances in code breaking.', ans: 'computer', exp: 'Đoạn D: "believed that future computer technology would eventually solve".' },
-          { num: 38, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'Dr Gabriel Landini used a system known as ... in his research, and claims to have demonstrated the presence of genuine words.', ans: 'spectral analysis', exp: 'Đoạn E: "used spectral analysis and computational linguistic tools".' },
-          { num: 39, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'Dr Gordon Rugg\'s system involved a grille that made it possible to quickly select symbols that appeared in a...', ans: 'table', exp: 'Đoạn E: "from a pre-defined table of symbols".' },
-
-          // Question 40 (Multiple Choice)
-          { num: 40, section: 'Question 40: Multiple Choice', type: 'mc', text: 'The writer\'s main aim in this passage is to:', options: ['A. explain the meaning of the manuscript.', 'B. determine the true identity of the manuscript\'s author.', 'C. describe the numerous attempts to decode the manuscript.', 'D. identify which research into the manuscript has had the most media coverage.'], ans: 'C', exp: 'Cả bài đọc tóm tắt các nỗ lực giải mã Voynich Manuscript qua nhiều thời kỳ bởi nhiều nhà nghiên cứu.' }
-        ]
-      },
-      {
-        id: 's_urban_bees',
-        title: 'The Quiet Return of Urban Bees',
-        kind: 'text',
-        tag: 'cambridge',
-        body: `Over the past decade, several large cities have encouraged residents to keep bees on rooftops and in community gardens. Supporters argue that urban hives help pollinate parks and balcony crops, while the variety of flowering plants in cities, from street trees to window boxes, can give bees a longer foraging season than nearby farmland, where a single crop may bloom for only a few weeks.\n\nHowever, ecologists have raised concerns. Wild pollinators such as solitary bees and hoverflies compete with honeybees for the same flowers, and in areas with too many hives, researchers have recorded declines in wild species. One study found that the number of hives in a district mattered more than the quality of the plants growing there.\n\nCity councils are now experimenting with registration schemes. Beekeepers must report where their hives are located, and some districts set a cap on hives per square kilometre. Officials say the aim is not to discourage beekeeping, but to make sure it supports, rather than replaces, native insects.`,
-        qs: [
-          { num: 1, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Urban areas can offer bees a longer period of available flowers than farmland.', ans: 'TRUE', exp: 'Bài nêu "variety of flowering plants... give bees a longer foraging season than nearby farmland".' },
-          { num: 2, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Honeybees are the only insects that help pollinate city plants.', ans: 'FALSE', exp: 'Bài nhắc tới cả "solitary bees and hoverflies".' },
-          { num: 3, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'The study found plant quality mattered more than hive numbers.', ans: 'FALSE', exp: 'Bài ghi "number of hives... mattered more than the quality of plants".' },
-          { num: 4, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Some councils limit the number of hives per square kilometre.', ans: 'TRUE', exp: 'Bài ghi "set a cap on hives per square kilometre".' },
-          { num: 5, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Most city beekeepers sell their honey at local markets.', ans: 'NOT GIVEN', exp: 'Không có thông tin về việc bán mật ở chợ.' }
+          { num: 27, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'It is uncertain when the Voynich manuscript was written.', ans: 'TRUE', exp: 'Đoạn A: "date of manuscript\'s creation remain subjects of debate".' },
+          { num: 28, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'Wilfrid Voynich donated the manuscript to the Beinecke Library.', ans: 'NOT GIVEN', exp: 'Không đề cập đến việc Voynich quyên góp.' },
+          { num: 29, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'Interest in the Voynich manuscript extends beyond that of academics and professional code breakers.', ans: 'TRUE', exp: 'Đoạn F: "extends far beyond academics and codebreakers".' },
+          { num: 30, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'The text of the Voynich manuscript contains just under 70 symbols.', ans: 'FALSE', exp: 'Đoạn C: "20 to 30 distinct characters".' },
+          { num: 31, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'The number of times some words occur make it unlikely that the manuscript is based on an authentic language.', ans: 'D', exp: 'William Friedman phân tích tần suất từ.' },
+          { num: 32, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'Unlike some other similar objects of fascination, people can gain direct access to the Voynich manuscript.', ans: 'A', exp: 'Gordon Rugg đề cập đến digital scans công khai.' },
+          { num: 33, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'The person who wrote the manuscript may not have been entirely sane.', ans: 'E', exp: 'Rob Churchill gợi ý tác giả không hoàn toàn tỉnh táo.' },
+          { num: 34, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'It is likely that the author of the manuscript is the same person as suggested by Wilfrid Voynich.', ans: 'C', exp: 'William Newbold giả thiết tác giả Roger Bacon.' },
+          { num: 35, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'William Newbold believed that the author had been able to look at cells through a...', ans: 'microscope', exp: 'microscope.' },
+          { num: 36, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'William Friedman concluded that the manuscript was written in an artificial language based on...', ans: 'concepts', exp: 'concepts.' },
+          { num: 37, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'He believed that the ... would continue to bring advances in code breaking.', ans: 'computer', exp: 'computer.' },
+          { num: 38, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'Dr Gabriel Landini used a system known as ... in his research.', ans: 'spectral analysis', exp: 'spectral analysis.' },
+          { num: 39, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'Dr Gordon Rugg\'s system involved a grille to select symbols from a...', ans: 'table', exp: 'table.' },
+          { num: 40, section: 'Question 40: Multiple Choice', type: 'mc', text: 'The writer\'s main aim in this passage is to:', options: ['A. explain the meaning of the manuscript.', 'B. determine the true identity of the manuscript\'s author.', 'C. describe the numerous attempts to decode the manuscript.', 'D. identify which research had the most media coverage.'], ans: 'C', exp: 'Describe the attempts to decode.' }
         ]
       }
     ];
 
     // STORAGE STATE
-    const STORAGE_KEY = 'ielts_reading_hub_v2';
+    const STORAGE_KEY = 'ielts_reading_hub_v3';
     let AppState = {
       items: [],
       userResults: {},
@@ -776,7 +800,7 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
       }
     }
 
-    // SMART AUTO-IMPORTER PARSER WITH URL FETCH
+    // SMART AUTO-IMPORTER PARSER WITH MULTI-PROXY AUTO RETRY
     function openParserModal() {
       document.getElementById('modal-parser').classList.remove('hidden');
     }
@@ -788,51 +812,67 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
     async function fetchAndParseFromUrl() {
       const urlInput = document.getElementById('parse-url').value.trim();
       if (!urlInput) {
-        alert('Vui lòng nhập đường link URL bài đọc (Ví dụ: https://www.izone.edu.vn/luyen-thi-ielts/...)');
+        alert('Vui lòng nhập đường link URL bài đọc.');
         return;
       }
 
       const statusEl = document.getElementById('parse-url-status');
-      statusEl.innerHTML = '<span class="text-amber-400">⏳ Đang tự động tải nội dung từ đường link...</span>';
+      statusEl.innerHTML = '<span class="text-amber-400">⏳ Đang tự động kết nối qua máy chủ trung gian để tải dữ liệu...</span>';
 
-      try {
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlInput)}`;
-        const res = await fetch(proxyUrl);
-        if (!res.ok) throw new Error('HTTP Error ' + res.status);
+      const proxies = [
+        url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+      ];
 
-        const htmlText = await res.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
+      let htmlText = null;
 
-        // Extract Title
-        const h1 = doc.querySelector('h1') || doc.querySelector('title');
-        const rawTitle = h1 ? h1.innerText.replace('[Giải đáp án chi tiết]', '').replace('IELTS Reading', '').trim() : 'Bài đọc IELTS';
-
-        // Extract Passage
-        let passageText = '';
-        const passageToggle = doc.querySelector('#elementor-tab-content-1111') || doc.querySelector('.elementor-widget-toggle') || doc.querySelector('.entry-content') || doc.querySelector('article');
-        if (passageToggle) {
-          const ps = passageToggle.querySelectorAll('p');
-          if (ps.length > 0) {
-            passageText = Array.from(ps).map(p => p.innerText.trim()).filter(t => t.length > 20).join('\n\n');
-          } else {
-            passageText = passageToggle.innerText;
+      for (const proxyFn of proxies) {
+        try {
+          const pUrl = proxyFn(urlInput);
+          const res = await fetch(pUrl);
+          if (res.ok) {
+            const text = await res.text();
+            if (text && text.length > 200) {
+              htmlText = text;
+              break;
+            }
           }
+        } catch (e) {
+          console.warn('Proxy retry...', e);
         }
-
-        // Extract Quiz / Answers
-        const quizEl = doc.querySelector('#quiz') || doc.body;
-        const rawQsText = quizEl ? quizEl.innerText : doc.body.innerText;
-
-        document.getElementById('parse-title').value = rawTitle || 'Bài đọc từ Web';
-        if (passageText) document.getElementById('parse-passage').value = passageText;
-        document.getElementById('parse-raw-questions').value = rawQsText;
-
-        statusEl.innerHTML = '<span class="text-emerald-400">✅ Đã tải và tự động bóc tách xong! Hãy bấm "🚀 Phân tích & Lưu Bài".</span>';
-      } catch (err) {
-        console.error(err);
-        statusEl.innerHTML = '<span class="text-rose-400">❌ Không thể tải trực tiếp từ URL này do bảo mật trang web. Bạn chỉ cần copy văn bản bài đọc trên web rồi dán vào ô bên dưới nhé!</span>';
       }
+
+      if (!htmlText) {
+        statusEl.innerHTML = '<span class="text-rose-400">❌ Trang web này chặn tự động tải từ xa. Bạn chỉ cần copy đoạn văn trên web dán trực tiếp vào ô bên dưới nhé!</span>';
+        return;
+      }
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+
+      const h1 = doc.querySelector('h1') || doc.querySelector('title');
+      const rawTitle = h1 ? h1.innerText.replace(/\[Giải đáp án chi tiết\]|Đáp án và giải chi tiết|IELTS Reading/gi, '').trim() : 'Bài đọc IELTS';
+
+      let passageText = '';
+      const passageToggle = doc.querySelector('#elementor-tab-content-1351') || doc.querySelector('#elementor-tab-content-1111') || doc.querySelector('.elementor-widget-toggle') || doc.querySelector('.entry-content') || doc.querySelector('article');
+      if (passageToggle) {
+        const ps = passageToggle.querySelectorAll('p, li');
+        if (ps.length > 0) {
+          passageText = Array.from(ps).map(p => p.innerText.trim()).filter(t => t.length > 15).join('\n\n');
+        } else {
+          passageText = passageToggle.innerText;
+        }
+      }
+
+      const quizEl = doc.querySelector('#quiz') || doc.body;
+      const rawQsText = quizEl ? quizEl.innerText : doc.body.innerText;
+
+      document.getElementById('parse-title').value = rawTitle || 'Bài đọc từ Web';
+      if (passageText) document.getElementById('parse-passage').value = passageText;
+      document.getElementById('parse-raw-questions').value = rawQsText;
+
+      statusEl.innerHTML = '<span class="text-emerald-400">✅ Đã tự động tải và bóc tách thành công! Bấm "🚀 Phân tích & Lưu Bài".</span>';
     }
 
     function executeSmartImport() {
@@ -1032,7 +1072,10 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
     }
 
     function loadDefaultPassage(key) {
-      if (key === 'voynich') {
+      if (key === 'info_theory') {
+        const v = AppState.items.find(i => i.id === 's_info_theory');
+        if (v) selectPassage(v.id);
+      } else if (key === 'voynich') {
         const v = AppState.items.find(i => i.id === 's_voynich');
         if (v) selectPassage(v.id);
       }
