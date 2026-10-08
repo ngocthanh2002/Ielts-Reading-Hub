@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>IELTS Reading Hub Pro – Luyện tập bài đọc IELTS Đa Nguồn</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <!-- Tesseract.js v5 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -29,16 +31,16 @@
       </div>
       <div>
         <h1 class="font-bold text-lg text-white leading-tight flex items-center gap-2">
-          IELTS Reading Hub <span class="bg-teal-500/20 text-teal-300 text-xs px-2 py-0.5 rounded-full border border-teal-500/30">Pro Multi-Source</span>
+          IELTS Reading Hub <span class="bg-teal-500/20 text-teal-300 text-xs px-2 py-0.5 rounded-full border border-teal-500/30">Worker & OCR Pro</span>
         </h1>
-        <p class="text-xs text-slate-400">Gom bài đọc từ Link Website (IZONE/Cam), PDF, Hình ảnh về một nơi luyện tập</p>
+        <p class="text-xs text-slate-400">Tự động trích xuất bài đọc từ Link Web (Cloudflare Worker) & OCR đọc chữ từ ảnh Tesseract.js</p>
       </div>
     </div>
 
     <!-- Actions & Stats -->
     <div class="flex items-center gap-2">
-      <button id="btn-import-parser" onclick="openParserModal()" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
-        <span>🌐 Import bằng Link / Auto-Importer</span>
+      <button id="btn-import-parser" onclick="openParserModal()" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
+        <span>⚡ Tải Bài Từ Link (Worker + OCR)</span>
       </button>
       <button id="btn-add" onclick="openAddModal()" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
         <span>+ Thêm thủ công / Ảnh</span>
@@ -87,12 +89,12 @@
     <main id="workspace" class="flex-1 bg-slate-950 flex flex-col overflow-hidden relative">
       <!-- Empty state when no passage selected -->
       <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-center p-8 text-slate-400">
-        <div class="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-3xl mb-4 border border-slate-700">
+        <div class="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-3xl mb-4 border border-slate-700 shadow-xl">
           📚
         </div>
         <h2 class="text-xl font-bold text-slate-200 mb-2">Chọn một bài đọc để bắt đầu luyện tập</h2>
         <p class="text-sm max-w-md mb-6 text-slate-400">
-          Hệ thống hỗ trợ tự động bôi đen tô sáng, tính giờ làm bài chuẩn IELTS, tự động chấm điểm và xem giải thích chi tiết.
+          Hỗ trợ tự động kết nối Cloudflare Worker trích xuất bài đọc, OCR đọc chữ từ ảnh với Tesseract.js và chấm điểm chi tiết.
         </p>
         <div class="flex flex-wrap justify-center gap-3">
           <button onclick="loadDefaultPassage('info_theory')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
@@ -100,6 +102,9 @@
           </button>
           <button onclick="loadDefaultPassage('voynich')" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
             📖 Mở bài "The Voynich Manuscript" (IZONE)
+          </button>
+          <button onclick="openParserModal()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
+            ⚡ Tải Bài Từ Link URL Bất Kỳ
           </button>
         </div>
       </div>
@@ -192,68 +197,109 @@
     </main>
   </div>
 
-  <!-- MODAL: SMART AUTO-IMPORTER WITH URL FETCH -->
+  <!-- MODAL: ADVANCED WORKER & OCR IMPORTER -->
   <div id="modal-parser" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-800/50">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-800/50 shrink-0">
         <div>
           <h3 class="font-bold text-white text-base flex items-center gap-2">
-            🌐 Import Bài Đọc Bằng Link URL Web Hoặc Copied Text
+            ⚡ Tải Bài Từ Link URL (Cloudflare Worker + Tesseract OCR)
           </h3>
-          <p class="text-xs text-slate-400">Dán đường link (URL) izone.edu.vn / website khác hoặc copy-paste văn bản để bóc tách tự động</p>
+          <p class="text-xs text-slate-400">Kết nối qua Proxy Worker, tự động lọc DOMParser, nhận diện chữ từ ảnh bài đọc và xem trước trước khi lưu</p>
         </div>
         <button onclick="closeParserModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
       </div>
       
-      <div class="p-6 overflow-y-auto space-y-4 custom-scroll text-xs">
-        <!-- METHOD 1: URL FETCH WITH MULTI-PROXY AUTO RETRY -->
-        <div class="bg-indigo-950/40 border border-indigo-500/30 p-4 rounded-xl space-y-2">
-          <label class="block font-bold text-indigo-300 text-xs">🔗 CÁCH 1: NHẬP ĐƯỜNG LINK WEBSITE (URL)</label>
+      <!-- Modal Scroll Body -->
+      <div class="p-6 overflow-y-auto space-y-5 custom-scroll text-xs">
+        
+        <!-- URL INPUT SECTION -->
+        <div class="bg-indigo-950/40 border border-indigo-500/30 p-4 rounded-xl space-y-3">
+          <label class="block font-bold text-indigo-300 text-xs">🔗 NHẬP ĐƯỜNG LINK WEBSITE BÀI ĐỌC (URL)</label>
           <div class="flex gap-2">
-            <input type="url" id="parse-url" placeholder="https://www.izone.edu.vn/luyen-thi-ielts/information-theory-the-big-idea-ielts-reading/" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:border-indigo-500 focus:outline-none text-xs">
-            <button onclick="fetchAndParseFromUrl()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-lg shrink-0 shadow transition flex items-center gap-1">
-              <span>📥 Tải Bài Từ Link</span>
+            <input type="url" id="parse-url" placeholder="VD: https://www.izone.edu.vn/luyen-thi-ielts/information-theory-the-big-idea-ielts-reading/" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-slate-200 focus:border-indigo-500 focus:outline-none text-xs">
+            <button onclick="fetchAndParseFromWorker()" id="btn-fetch-worker" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2.5 rounded-lg shrink-0 shadow transition flex items-center gap-1.5">
+              <span>🚀 Tải Bài Qua Worker</span>
             </button>
           </div>
           <div id="parse-url-status" class="text-[11px] min-h-[18px]"></div>
         </div>
 
-        <div class="relative flex py-1 items-center">
-          <div class="flex-grow border-t border-slate-800"></div>
-          <span class="flex-shrink mx-4 text-slate-500 text-[11px]">HOẶC ĐIỀN THÔNG TIN BÊN DƯỚI</span>
-          <div class="flex-grow border-t border-slate-800"></div>
+        <!-- IMAGE SELECTOR & OCR SECTION (Hidden by default until images detected) -->
+        <div id="ocr-section" class="hidden bg-slate-950 border border-violet-500/30 p-4 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-violet-300 text-xs flex items-center gap-1.5">
+              🖼️ PHÁT HIỆN HÌNH ẢNH BÀI ĐỌC (<span id="detected-img-count">0</span> ảnh)
+            </h4>
+            <span class="text-[11px] text-slate-400">Chọn ảnh là bài đọc để chạy Tesseract.js OCR đọc chữ</span>
+          </div>
+
+          <div id="image-checklist" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-48 overflow-y-auto p-1 custom-scroll">
+            <!-- Dynamically populated with image checkboxes & thumbnails -->
+          </div>
+
+          <!-- OCR Progress Bar -->
+          <div id="ocr-progress-box" class="hidden space-y-1.5 pt-2">
+            <div class="flex justify-between text-[11px]">
+              <span id="ocr-status-text" class="text-amber-300 font-medium">Đang chuẩn bị Tesseract.js OCR...</span>
+              <span id="ocr-percentage" class="text-teal-400 font-bold">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
+              <div id="ocr-progress-bar" class="bg-gradient-to-r from-teal-500 to-emerald-400 h-full w-0 transition-all duration-200"></div>
+            </div>
+          </div>
+
+          <button onclick="runOCROnSelectedImages()" id="btn-run-ocr" class="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2 rounded-lg text-xs shadow transition flex items-center gap-1.5">
+            <span>🔍 Đọc Chữ Từ Ảnh Chọn (Tesseract.js OCR)</span>
+          </button>
         </div>
 
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Tên Bài Đọc / Nguồn</label>
-          <input type="text" id="parse-title" placeholder="VD: Information theory the big idea - Izone Reading" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
+        <!-- PREVIEW & EDIT FORM SECTION -->
+        <div class="space-y-4 pt-2 border-t border-slate-800">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-teal-300 text-xs">📝 BẢN XEM TRƯỚC VÀ CHỈNH SỬA TRƯỚC KHI LƯU</h4>
+            <span class="text-[11px] text-slate-500">Bạn có thể sửa lại tên, nội dung hoặc đáp án bên dưới nếu cần</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="md:col-span-2">
+              <label class="block font-semibold text-slate-300 mb-1">Tên Bài Đọc / Nguồn</label>
+              <input type="text" id="parse-title" placeholder="Tên bài đọc..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Thẻ / Phân loại</label>
+              <select id="parse-tag" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
+                <option value="izone">IZONE Reading</option>
+                <option value="cambridge">Cambridge IELTS</option>
+                <option value="custom">Bài đọc cá nhân</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Nội dung Văn bản Bài Đọc (Passage Text)</label>
+            <textarea id="parse-passage" rows="6" placeholder="Nội dung bài đọc (Tự động bóc tách từ HTML hoặc OCR từ ảnh)..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs custom-scroll"></textarea>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Cụm Câu Hỏi & Bảng Đáp Án (Tự động trích xuất)</label>
+            <textarea id="parse-raw-questions" rows="5" placeholder="Câu hỏi và đáp án..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs custom-scroll"></textarea>
+          </div>
         </div>
 
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Thẻ / Phân loại</label>
-          <select id="parse-tag" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
-            <option value="izone">IZONE Reading</option>
-            <option value="cambridge">Cambridge IELTS</option>
-            <option value="custom">Bài đọc cá nhân</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Nội dung Bài Đọc (Passage Text)</label>
-          <textarea id="parse-passage" rows="5" placeholder="Nội dung bài đọc sẽ tự động điền vào đây..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Cụm Câu Hỏi & Bảng Đáp Án</label>
-          <textarea id="parse-raw-questions" rows="5" placeholder="Phần câu hỏi và đáp án tự động điền vào đây..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
-        </div>
       </div>
 
-      <div class="px-6 py-4 border-t border-slate-800 bg-slate-800/30 flex justify-end gap-3">
-        <button onclick="closeParserModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Hủy</button>
-        <button onclick="executeSmartImport()" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-teal-600/20">
-          🚀 Phân tích & Lưu Bài Vào Thư Viện
-        </button>
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-slate-800 bg-slate-800/40 flex items-center justify-between shrink-0">
+        <span class="text-[11px] text-slate-400">Worker Proxy: <code>reading-proxy.phamngocthanh02contact.workers.dev</code></span>
+        <div class="flex gap-3">
+          <button onclick="closeParserModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Hủy</button>
+          <button onclick="executeSmartImport()" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-teal-600/20">
+            🚀 Lưu Bài Đọc Vào Thư Viện
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -308,6 +354,9 @@
 
   <!-- APPLICATION LOGIC JS -->
   <script>
+    // CLOUDFLARE WORKER PROXY CONSTANT
+    const WORKER_PROXY_BASE = 'https://reading-proxy.phamngocthanh02contact.workers.dev/?url=';
+
     // PRE-LOADED SAMPLE DATA
     const SAMPLE_DATA = [
       {
@@ -333,15 +382,12 @@ Over the years scientists have devised many such coding methods, and they have p
 Paragraph F
 Shannon also laid the foundations of more efficient ways of storing information, by stripping out superfluous ('redundant') bits from data which contributed little real information. As mobile phone text messages like 'I CN C U' show, it is often possible to leave out a lot of data without losing much meaning. As with error correction, however, there's a limit beyond which messages become too ambiguous. Shannon showed how to calculate this limit, opening the way to the design of compression methods that cram maximum information into the minimum space.`,
         qs: [
-          // Questions 27-32 Matching Paragraphs
           { num: 27, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'an explanation of the factors affecting the transmission of information', ans: 'D', exp: 'Đoạn D giải thích các yếu tố như noise (nhiễu), bandwidth (băng thông) và signal strength.' },
           { num: 28, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'an example of how unnecessary information can be omitted', ans: 'F', exp: 'Đoạn F đưa ra ví dụ tin nhắn SMS "I CN C U" chứng minh việc bớt thông tin thừa.' },
           { num: 29, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'a reference to Shannon\'s attitude to fame', ans: 'B', exp: 'Đoạn B nêu Shannon "shunned the resulting acclaim" (tránh xa danh tiếng).' },
           { num: 30, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'details of a machine capable of interpreting incomplete information', ans: 'E', exp: 'Đoạn E nhắc tới laser siêu thị đọc mã vạch trên vỏ khoai tây chiên bị nhăn.' },
           { num: 31, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'a detailed account of an incident involving information theory', ans: 'A', exp: 'Đoạn A kể chi tiết sự cố tàu vũ trụ Voyager I gửi tín hiệu sửa chữa từ ngoài vũ trụ.' },
           { num: 32, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'a reference to what Shannon initially intended to achieve in his research', ans: 'C', exp: 'Đoạn C nêu mục tiêu ban đầu năm 1939: "to pin down the precise meaning of concept of information".' },
-
-          // Questions 33-39 Sentence Completion
           { num: 33, section: 'Questions 33-39: Complete the notes below (NO MORE THAN TWO WORDS)', type: 'text', text: 'The Voyager I Space Probe transmitted pictures of both ...', ans: 'Jupiter', exp: 'Đoạn A: "images of Jupiter and Saturn".' },
           { num: 34, section: 'Questions 33-39: Complete the notes', type: 'text', text: '... and then left the Solar System.', ans: 'Saturn', exp: 'Đoạn A: "Jupiter and Saturn".' },
           { num: 35, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'and soared out of the ...', ans: 'Solar System', exp: 'Đoạn A: "out of the Solar System".' },
@@ -349,8 +395,6 @@ Shannon also laid the foundations of more efficient ways of storing information,
           { num: 37, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'Sensors and ... were on the brink of failing.', ans: 'Circuits', exp: 'Đoạn A: "Sensors and circuits".' },
           { num: 38, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'The solution was to instruct it to use ... to change failing parts.', ans: 'Spares', exp: 'Đoạn A: "instruct it to use spares".' },
           { num: 39, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'By means of a ... belonging to NASA\'s Deep Space Network.', ans: 'Radio dish', exp: 'Đoạn A: "radio dish belonging to NASA\'s Deep Space Network".' },
-
-          // Questions 40-42 True/False/Not Given
           { num: 40, section: 'Questions 40-42: True / False / Not Given', type: 'tfng', text: 'The concept of describing something as true or false was the starting point for Shannon in his attempts to send messages.', ans: 'TRUE', exp: 'Đoạn C: "The most basic form... whether something is true or false - which can be captured in binary bit".' },
           { num: 41, section: 'Questions 40-42: True / False / Not Given', type: 'tfng', text: 'The amount of information that can be sent in a given time period is determined with reference to signal strength and noise level.', ans: 'TRUE', exp: 'Đoạn D: "maximum rate... given signal strength and noise level".' },
           { num: 42, section: 'Questions 40-42: True / False / Not Given', type: 'tfng', text: 'Products have now been developed which can convey more information than Shannon had anticipated as possible.', ans: 'FALSE', exp: 'Đoạn E: Turbo codes "come very close to Shannon\'s ultimate limit", chứ không vượt qua được hạn mức Shannon đưa ra.' }
@@ -398,7 +442,7 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
     ];
 
     // STORAGE STATE
-    const STORAGE_KEY = 'ielts_reading_hub_v3';
+    const STORAGE_KEY = 'ielts_reading_hub_v4';
     let AppState = {
       items: [],
       userResults: {},
@@ -409,7 +453,8 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
       timerSeconds: 0,
       timerInterval: null,
       timerRunning: false,
-      isGraded: false
+      isGraded: false,
+      detectedImages: []
     };
 
     // INIT
@@ -800,7 +845,9 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
       }
     }
 
-    // SMART AUTO-IMPORTER PARSER WITH MULTI-PROXY AUTO RETRY
+    // =========================================================================
+    // FEATURE IMPLEMENTATION: CLOUDFLARE WORKER & TESSERACT.JS OCR IMPORTER
+    // =========================================================================
     function openParserModal() {
       document.getElementById('modal-parser').classList.remove('hidden');
     }
@@ -809,7 +856,7 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
       document.getElementById('modal-parser').classList.add('hidden');
     }
 
-    async function fetchAndParseFromUrl() {
+    async function fetchAndParseFromWorker() {
       const urlInput = document.getElementById('parse-url').value.trim();
       if (!urlInput) {
         alert('Vui lòng nhập đường link URL bài đọc.');
@@ -817,62 +864,203 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
       }
 
       const statusEl = document.getElementById('parse-url-status');
-      statusEl.innerHTML = '<span class="text-amber-400">⏳ Đang tự động kết nối qua máy chủ trung gian để tải dữ liệu...</span>';
+      const btnEl = document.getElementById('btn-fetch-worker');
+      
+      statusEl.innerHTML = '<span class="text-amber-400 flex items-center gap-1">⏳ Đang kết nối tới Cloudflare Worker proxy...</span>';
+      btnEl.disabled = true;
+      btnEl.classList.add('opacity-50');
 
-      const proxies = [
-        url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-        url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-      ];
-
-      let htmlText = null;
-
-      for (const proxyFn of proxies) {
-        try {
-          const pUrl = proxyFn(urlInput);
-          const res = await fetch(pUrl);
-          if (res.ok) {
-            const text = await res.text();
-            if (text && text.length > 200) {
-              htmlText = text;
-              break;
-            }
-          }
-        } catch (e) {
-          console.warn('Proxy retry...', e);
+      try {
+        // Step 1: Call Cloudflare Worker
+        const proxyUrl = WORKER_PROXY_BASE + encodeURIComponent(urlInput);
+        const res = await fetch(proxyUrl);
+        if (!res.ok) {
+          throw new Error(`Worker trả về lỗi HTTP ${res.status}: ${res.statusText}`);
         }
-      }
 
-      if (!htmlText) {
-        statusEl.innerHTML = '<span class="text-rose-400">❌ Trang web này chặn tự động tải từ xa. Bạn chỉ cần copy đoạn văn trên web dán trực tiếp vào ô bên dưới nhé!</span>';
+        const htmlText = await res.text();
+        if (!htmlText || htmlText.length < 100) {
+          throw new Error('Dữ liệu nhận về từ trang web rỗng hoặc quá ngắn.');
+        }
+
+        // Step 2: Parse HTML with DOMParser
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+
+        // Remove nav, header, footer, script, style, junk
+        const junk = ['nav', 'header', 'footer', 'script', 'style', 'noscript', 'iframe', '.sidebar', '#masthead', '.comments', '.advertisement', '.popup-maker'];
+        junk.forEach(s => doc.querySelectorAll(s).forEach(e => e.remove()));
+
+        // Extract Title
+        const h1 = doc.querySelector('h1') || doc.querySelector('title');
+        let title = h1 ? h1.innerText : 'Bài đọc IELTS từ Web';
+        title = title.replace(/\[Giải đáp án chi tiết\]|Đáp án và giải chi tiết|IELTS Reading|Giải chi tiết/gi, '').trim();
+
+        // Main content container search: article, .entry-content, main, .elementor-widget-wrap, #content
+        const mainContent = doc.querySelector('.entry-content, article, main, .elementor-widget-wrap, #content') || doc.body;
+
+        // Step 3: Check for text content
+        const pList = Array.from(mainContent.querySelectorAll('p, li'))
+          .map(p => p.innerText.trim())
+          .filter(t => t.length > 20 && !t.includes('Copyright') && !t.startsWith('http'));
+
+        const textContent = pList.join('\n\n');
+
+        // Check for images inside main content
+        const imgs = Array.from(mainContent.querySelectorAll('img'));
+        AppState.detectedImages = [];
+
+        imgs.forEach((img, i) => {
+          let src = img.getAttribute('src') || img.getAttribute('data-src');
+          if (!src) return;
+          try {
+            src = new URL(src, urlInput).href;
+          } catch(e) {}
+
+          const width = parseInt(img.getAttribute('width') || '0');
+          const height = parseInt(img.getAttribute('height') || '0');
+          const isIcon = src.includes('logo') || src.includes('favicon') || src.includes('avatar') || (width > 0 && width < 120 && height > 0 && height < 120);
+
+          if (!isIcon && (src.includes('uploads') || src.includes('reading') || src.includes('wp-content') || width >= 300 || src.match(/\.(png|jpg|jpeg|webp)/i))) {
+            AppState.detectedImages.push({
+              id: 'img_' + i,
+              url: src,
+              alt: img.getAttribute('alt') || `Ảnh bài đọc ${i + 1}`
+            });
+          }
+        });
+
+        // Step 5: Extract Questions & Answer Key Table
+        let quizText = '';
+        const quizEl = doc.querySelector('#quiz') || doc.querySelector('.quiz-container');
+        if (quizEl) {
+          quizText = quizEl.innerText;
+        } else {
+          quizText = mainContent.innerText;
+        }
+
+        // Answer key table
+        const tables = doc.querySelectorAll('table');
+        let tableText = '';
+        tables.forEach(table => {
+          if (table.innerText.includes('TRUE') || table.innerText.includes('FALSE') || table.innerText.includes('27.') || table.innerText.includes('1.')) {
+            tableText += '\n' + table.innerText;
+          }
+        });
+
+        if (tableText) quizText += '\n\n--- BẢNG ĐÁP ÁN TRÍCH XUẤT ---\n' + tableText;
+
+        // Render extracted values into Preview Form
+        document.getElementById('parse-title').value = title || 'Bài đọc từ Web';
+        if (textContent.length > 100) {
+          document.getElementById('parse-passage').value = textContent;
+        }
+        document.getElementById('parse-raw-questions').value = quizText;
+
+        // Render Image Checklist if images detected
+        const ocrSec = document.getElementById('ocr-section');
+        const checklistEl = document.getElementById('image-checklist');
+
+        if (AppState.detectedImages.length > 0) {
+          ocrSec.classList.remove('hidden');
+          document.getElementById('detected-img-count').textContent = AppState.detectedImages.length;
+
+          checklistEl.innerHTML = AppState.detectedImages.map((img, idx) => `
+            <label class="bg-slate-900 border border-slate-700 hover:border-violet-500 rounded-lg p-2 flex flex-col items-center gap-1.5 cursor-pointer relative group">
+              <input type="checkbox" class="img-select-cb absolute top-2 left-2 text-violet-500" value="${img.url}" checked>
+              <img src="${WORKER_PROXY_BASE + encodeURIComponent(img.url)}" class="h-20 object-cover rounded border border-slate-800 w-full" alt="${img.alt}" onerror="this.src='https://placehold.co/100x100?text=Ảnh'">
+              <span class="text-[10px] text-slate-400 truncate w-full text-center">Trang ${idx + 1}</span>
+            </label>
+          `).join('');
+        } else {
+          ocrSec.classList.add('hidden');
+        }
+
+        statusEl.innerHTML = `<span class="text-emerald-400">✅ Đã kết nối Worker & bóc tách thành công! ${textContent ? 'Tìm thấy phần chữ bài đọc.' : 'Bài đọc nằm trong hình ảnh bên dưới.'}</span>`;
+
+      } catch (err) {
+        console.error(err);
+        statusEl.innerHTML = `<span class="text-rose-400 font-semibold">❌ Lỗi: ${escapeHtml(err.message)}. Vui lòng kiểm tra lại URL hoặc kết nối Worker.</span>`;
+      } finally {
+        btnEl.disabled = false;
+        btnEl.classList.remove('opacity-50');
+      }
+    }
+
+    // RUN TESSERACT.JS OCR ON SELECTED IMAGES THROUGH WORKER
+    async function runOCROnSelectedImages() {
+      const selectedCBs = document.querySelectorAll('.img-select-cb:checked');
+      if (selectedCBs.length === 0) {
+        alert('Vui lòng tích chọn ít nhất 1 hình ảnh để nhận diện chữ OCR.');
         return;
       }
 
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlText, 'text/html');
+      const imgUrls = Array.from(selectedCBs).map(cb => cb.value);
+      const progressBox = document.getElementById('ocr-progress-box');
+      const progressBar = document.getElementById('ocr-progress-bar');
+      const progressText = document.getElementById('ocr-status-text');
+      const percentageEl = document.getElementById('ocr-percentage');
+      const btnRun = document.getElementById('btn-run-ocr');
 
-      const h1 = doc.querySelector('h1') || doc.querySelector('title');
-      const rawTitle = h1 ? h1.innerText.replace(/\[Giải đáp án chi tiết\]|Đáp án và giải chi tiết|IELTS Reading/gi, '').trim() : 'Bài đọc IELTS';
+      progressBox.classList.remove('hidden');
+      btnRun.disabled = true;
+      btnRun.classList.add('opacity-50');
 
-      let passageText = '';
-      const passageToggle = doc.querySelector('#elementor-tab-content-1351') || doc.querySelector('#elementor-tab-content-1111') || doc.querySelector('.elementor-widget-toggle') || doc.querySelector('.entry-content') || doc.querySelector('article');
-      if (passageToggle) {
-        const ps = passageToggle.querySelectorAll('p, li');
-        if (ps.length > 0) {
-          passageText = Array.from(ps).map(p => p.innerText.trim()).filter(t => t.length > 15).join('\n\n');
-        } else {
-          passageText = passageToggle.innerText;
+      let combinedOcrText = '';
+      const total = imgUrls.length;
+
+      try {
+        for (let i = 0; i < total; i++) {
+          const rawImgUrl = imgUrls[i];
+          progressText.textContent = `⏳ Đang tải ảnh ${i + 1}/${total} qua Worker...`;
+          percentageEl.textContent = `${Math.round((i / total) * 100)}%`;
+          progressBar.style.width = `${Math.round((i / total) * 100)}%`;
+
+          // Fetch image Blob through Worker
+          const proxyImgUrl = WORKER_PROXY_BASE + encodeURIComponent(rawImgUrl);
+          const imgRes = await fetch(proxyImgUrl);
+          if (!imgRes.ok) {
+            console.warn(`Không thể tải ảnh qua Worker: ${rawImgUrl}`);
+            continue;
+          }
+          const blob = await imgRes.blob();
+
+          // Run Tesseract.js
+          progressText.textContent = `🔍 Đang đọc chữ OCR ảnh ${i + 1}/${total} (Tesseract.js eng)...`;
+
+          const result = await Tesseract.recognize(blob, 'eng', {
+            logger: m => {
+              if (m.status === 'recognizing text') {
+                const currentPct = Math.round((m.progress || 0) * 100);
+                const overallPct = Math.round(((i + (m.progress || 0)) / total) * 100);
+                percentageEl.textContent = `${overallPct}%`;
+                progressBar.style.width = `${overallPct}%`;
+              }
+            }
+          });
+
+          if (result && result.data && result.data.text) {
+            combinedOcrText += `\n\n--- HÌNH BÀI ĐỌC ${i + 1} (TESSERACT OCR) ---\n\n` + result.data.text.trim();
+          }
         }
+
+        if (combinedOcrText.trim()) {
+          const currentPassage = document.getElementById('parse-passage').value.trim();
+          document.getElementById('parse-passage').value = (currentPassage ? currentPassage + '\n\n' : '') + combinedOcrText.trim();
+          progressText.textContent = '✅ Đã hoàn tất OCR nhận diện chữ từ các hình ảnh thành công!';
+          percentageEl.textContent = '100%';
+          progressBar.style.width = '100%';
+        } else {
+          progressText.textContent = '⚠️ Không thể trích xuất chữ từ hình ảnh đã chọn.';
+        }
+
+      } catch (err) {
+        console.error(err);
+        progressText.textContent = '❌ Lỗi nhận diện OCR: ' + err.message;
+      } finally {
+        btnRun.disabled = false;
+        btnRun.classList.remove('opacity-50');
       }
-
-      const quizEl = doc.querySelector('#quiz') || doc.body;
-      const rawQsText = quizEl ? quizEl.innerText : doc.body.innerText;
-
-      document.getElementById('parse-title').value = rawTitle || 'Bài đọc từ Web';
-      if (passageText) document.getElementById('parse-passage').value = passageText;
-      document.getElementById('parse-raw-questions').value = rawQsText;
-
-      statusEl.innerHTML = '<span class="text-emerald-400">✅ Đã tự động tải và bóc tách thành công! Bấm "🚀 Phân tích & Lưu Bài".</span>';
     }
 
     function executeSmartImport() {
@@ -882,7 +1070,7 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
       const rawQs = document.getElementById('parse-raw-questions').value.trim();
 
       if (!title || !body) {
-        alert('Vui lòng nhập Tên bài đọc và Nội dung văn bản bài đọc.');
+        alert('Vui lòng kiểm tra Tên bài đọc và Nội dung văn bản bài đọc trước khi lưu.');
         return;
       }
 
