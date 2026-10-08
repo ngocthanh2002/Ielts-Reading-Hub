@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IELTS Reading Hub Pro – Luyện tập bài đọc IELTS Đa Nguồn</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .passage-content { font-family: 'Merriweather', serif; }
+    mark.hl-yellow { background-color: #fef08a; color: #1e293b; padding: 0.1em 0.2em; border-radius: 0.2em; }
+    mark.hl-green { background-color: #bbf7d0; color: #1e293b; padding: 0.1em 0.2em; border-radius: 0.2em; }
+    mark.hl-blue { background-color: #bfdbfe; color: #1e293b; padding: 0.1em 0.2em; border-radius: 0.2em; }
+    mark.hl-pink { background-color: #fbcfe8; color: #1e293b; padding: 0.1em 0.2em; border-radius: 0.2em; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .dark .custom-scroll::-webkit-scrollbar-thumb { background: #475569; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 h-full flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+
+  <!-- TOP NAVBAR -->
+  <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700/80 px-4 py-3 flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-teal-500/20 font-bold text-slate-900 text-xl">
+        📖
+      </div>
+      <div>
+        <h1 class="font-bold text-lg text-white leading-tight flex items-center gap-2">
+          IELTS Reading Hub <span class="bg-teal-500/20 text-teal-300 text-xs px-2 py-0.5 rounded-full border border-teal-500/30">Pro Multi-Source</span>
+        </h1>
+        <p class="text-xs text-slate-400">Gom bài đọc từ Link Website (IZONE/Cam), PDF, Hình ảnh về một nơi luyện tập</p>
+      </div>
+    </div>
+
+    <!-- Actions & Stats -->
+    <div class="flex items-center gap-2">
+      <button id="btn-import-parser" onclick="openParserModal()" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
+        <span>🌐 Import bằng Link / Auto-Importer</span>
+      </button>
+      <button id="btn-add" onclick="openAddModal()" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
+        <span>+ Thêm thủ công / Ảnh</span>
+      </button>
+      <button onclick="exportData()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-2.5 py-2 rounded-lg border border-slate-600 transition" title="Xuất dữ liệu JSON backup">
+        📥 Export JSON
+      </button>
+      <label class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-2.5 py-2 rounded-lg border border-slate-600 cursor-pointer transition" title="Nhập dữ liệu JSON">
+        📤 Import
+        <input type="file" id="file-import-json" accept=".json" class="hidden" onchange="importData(event)">
+      </label>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- LEFT SIDEBAR: PASSAGE LIBRARY -->
+    <aside class="w-80 bg-slate-800/50 border-r border-slate-700/80 flex flex-col shrink-0">
+      <div class="p-3 border-b border-slate-700/80 space-y-2">
+        <div class="relative">
+          <input type="text" id="search-input" placeholder="Tìm kiếm bài đọc..." oninput="renderLibrary()" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-teal-500">
+        </div>
+        <div class="flex items-center gap-1 text-xs overflow-x-auto pb-1" id="filter-tabs">
+          <button onclick="setFilter('all')" data-filter="all" class="tab-btn active bg-teal-500/20 text-teal-300 border border-teal-500/30 px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap">Tất cả</button>
+          <button onclick="setFilter('izone')" data-filter="izone" class="tab-btn text-slate-400 hover:bg-slate-700/50 px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap">IZONE</button>
+          <button onclick="setFilter('cambridge')" data-filter="cambridge" class="tab-btn text-slate-400 hover:bg-slate-700/50 px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap">Cambridge</button>
+          <button onclick="setFilter('image')" data-filter="image" class="tab-btn text-slate-400 hover:bg-slate-700/50 px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap">Dạng Hình</button>
+          <button onclick="setFilter('custom')" data-filter="custom" class="tab-btn text-slate-400 hover:bg-slate-700/50 px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap">Của tôi</button>
+        </div>
+      </div>
+
+      <!-- Passage List -->
+      <div id="library-list" class="flex-1 overflow-y-auto p-2 space-y-1.5 custom-scroll">
+        <!-- Rendered via JS -->
+      </div>
+      
+      <!-- Footer Info -->
+      <div class="p-3 border-t border-slate-700/80 bg-slate-800/80 text-[11px] text-slate-400 flex justify-between items-center">
+        <span>Tổng bài: <strong id="stat-total" class="text-slate-200">0</strong></span>
+        <span>Hoàn thành: <strong id="stat-done" class="text-teal-400">0</strong></span>
+      </div>
+    </aside>
+
+    <!-- CENTER & RIGHT: WORKSPACE DUAL PANE -->
+    <main id="workspace" class="flex-1 bg-slate-950 flex flex-col overflow-hidden relative">
+      <!-- Empty state when no passage selected -->
+      <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-center p-8 text-slate-400">
+        <div class="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-3xl mb-4 border border-slate-700">
+          📚
+        </div>
+        <h2 class="text-xl font-bold text-slate-200 mb-2">Chọn một bài đọc để bắt đầu luyện tập</h2>
+        <p class="text-sm max-w-md mb-6 text-slate-400">
+          Hệ thống hỗ trợ tự động bôi đen tô sáng, tính giờ làm bài chuẩn IELTS, tự động chấm điểm và xem giải thích chi tiết.
+        </p>
+        <div class="flex gap-3">
+          <button onclick="loadDefaultPassage('voynich')" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
+            📖 Mở bài "The Voynich Manuscript" (Izone)
+          </button>
+          <button onclick="openParserModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
+            🌐 Nhập bằng Link URL / Dán văn bản
+          </button>
+        </div>
+      </div>
+
+      <!-- ACTIVE TEST VIEW (Hidden by default) -->
+      <div id="test-view" class="hidden flex-1 flex flex-col overflow-hidden">
+        
+        <!-- TOOLBAR / CONTROL BAR -->
+        <div class="bg-slate-800/90 border-b border-slate-700/80 px-4 py-2.5 flex items-center justify-between shrink-0 flex-wrap gap-2">
+          <div class="flex items-center gap-3">
+            <h2 id="current-title" class="font-bold text-white text-sm md:text-base truncate max-w-xs md:max-w-md"></h2>
+            <span id="current-tag" class="bg-slate-700 text-slate-300 text-xs px-2 py-0.5 rounded border border-slate-600"></span>
+          </div>
+
+          <!-- Highlight Tools & Timer Controls -->
+          <div class="flex items-center gap-3">
+            <!-- Highlighter Palette -->
+            <div class="flex items-center gap-1 bg-slate-900/90 px-2 py-1 rounded-lg border border-slate-700 text-xs">
+              <span class="text-slate-400 text-[11px] mr-1">Tô sáng:</span>
+              <button onclick="setHighlightColor('yellow')" class="w-4 h-4 rounded-full bg-yellow-300 hover:scale-110 transition" title="Vàng"></button>
+              <button onclick="setHighlightColor('green')" class="w-4 h-4 rounded-full bg-green-300 hover:scale-110 transition" title="Xanh lá"></button>
+              <button onclick="setHighlightColor('blue')" class="w-4 h-4 rounded-full bg-blue-300 hover:scale-110 transition" title="Xanh dương"></button>
+              <button onclick="setHighlightColor('pink')" class="w-4 h-4 rounded-full bg-pink-300 hover:scale-110 transition" title="Hồng"></button>
+              <button onclick="removeSelectedHighlight()" class="text-slate-400 hover:text-slate-200 text-[11px] ml-1" title="Xóa highlight">🧹 Xóa</button>
+            </div>
+
+            <!-- Text Resize -->
+            <div class="flex items-center gap-1 bg-slate-900/90 px-2 py-1 rounded-lg border border-slate-700 text-xs">
+              <button onclick="changeFontSize(-1)" class="text-slate-300 hover:text-white px-1 font-bold">A-</button>
+              <span id="font-size-label" class="text-slate-400 text-[11px]">16px</span>
+              <button onclick="changeFontSize(1)" class="text-slate-300 hover:text-white px-1 font-bold">A+</button>
+            </div>
+
+            <!-- Timer -->
+            <div class="flex items-center gap-2 bg-slate-900/90 px-3 py-1 rounded-lg border border-slate-700">
+              <span class="text-slate-400 text-xs">⏱️</span>
+              <span id="timer-display" class="font-mono text-teal-400 font-bold text-sm">00:00</span>
+              <button id="btn-timer-toggle" onclick="toggleTimer()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 py-0.5 rounded">Bắt đầu</button>
+            </div>
+
+            <button onclick="deleteCurrentPassage()" id="btn-delete" class="text-xs text-rose-400 hover:bg-rose-500/20 px-2 py-1 rounded border border-rose-500/30">Xóa bài</button>
+          </div>
+        </div>
+
+        <!-- DUAL PANE CONTENT AREA -->
+        <div class="flex-1 flex overflow-hidden">
+          
+          <!-- LEFT PANE: PASSAGE -->
+          <div id="pane-passage" class="w-1/2 border-r border-slate-800 flex flex-col bg-slate-900 overflow-hidden">
+            <div class="bg-slate-800/40 px-4 py-2 border-b border-slate-800 text-xs text-slate-400 flex justify-between items-center">
+              <span>NỘI DUNG BÀI ĐỌC</span>
+              <span class="text-[11px] text-slate-500">Bôi đen đoạn văn bản để chọn màu tô sáng</span>
+            </div>
+            
+            <div id="passage-container" class="flex-1 overflow-y-auto p-6 text-slate-200 leading-relaxed custom-scroll passage-content">
+              <!-- Rendered Passage Text or Images -->
+            </div>
+          </div>
+
+          <!-- RIGHT PANE: QUESTIONS & GRADING -->
+          <div id="pane-questions" class="w-1/2 flex flex-col bg-slate-950 overflow-hidden">
+            <div class="bg-slate-800/40 px-4 py-2 border-b border-slate-800 text-xs text-slate-400 flex justify-between items-center">
+              <span>DANH SÁCH CÂU HỎI</span>
+              <span id="question-count-badge" class="text-teal-400 font-medium">0 câu</span>
+            </div>
+
+            <div id="questions-container" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scroll">
+              <!-- Rendered Questions -->
+            </div>
+
+            <!-- SUBMIT BAR -->
+            <div class="p-4 bg-slate-900 border-t border-slate-800 flex items-center justify-between shrink-0">
+              <div id="score-summary" class="text-sm font-semibold text-slate-300">
+                <!-- Score output after grading -->
+              </div>
+              <div class="flex gap-2">
+                <button onclick="resetTest()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-4 py-2 rounded-lg border border-slate-700">
+                  Làm lại
+                </button>
+                <button id="btn-submit" onclick="submitTest()" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-5 py-2 rounded-lg shadow-lg shadow-teal-600/20">
+                  Nộp bài & Chấm điểm
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: SMART AUTO-IMPORTER WITH URL FETCH -->
+  <div id="modal-parser" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-800/50">
+        <div>
+          <h3 class="font-bold text-white text-base flex items-center gap-2">
+            🌐 Import Bài Đọc Bằng Link URL Web Hoặc Copied Text
+          </h3>
+          <p class="text-xs text-slate-400">Dán đường link (URL) izone.edu.vn / website khác hoặc copy-paste văn bản để bóc tách tự động</p>
+        </div>
+        <button onclick="closeParserModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      </div>
+      
+      <div class="p-6 overflow-y-auto space-y-4 custom-scroll text-xs">
+        <!-- METHOD 1: URL FETCH -->
+        <div class="bg-indigo-950/40 border border-indigo-500/30 p-4 rounded-xl space-y-2">
+          <label class="block font-bold text-indigo-300 text-xs">🔗 CÁCH 1: NHẬP ĐƯỜNG LINK WEBSITE (URL)</label>
+          <div class="flex gap-2">
+            <input type="url" id="parse-url" placeholder="https://www.izone.edu.vn/luyen-thi-ielts/the-voynich-manuscript-ielts-reading/" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:border-indigo-500 focus:outline-none text-xs">
+            <button onclick="fetchAndParseFromUrl()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-lg shrink-0 shadow transition flex items-center gap-1">
+              <span>📥 Tải Bài Từ Link</span>
+            </button>
+          </div>
+          <div id="parse-url-status" class="text-[11px] min-h-[18px]"></div>
+        </div>
+
+        <div class="relative flex py-1 items-center">
+          <div class="flex-grow border-t border-slate-800"></div>
+          <span class="flex-shrink mx-4 text-slate-500 text-[11px]">HOẶC ĐIỀN THÔNG TIN BÊN DƯỚI</span>
+          <div class="flex-grow border-t border-slate-800"></div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Tên Bài Đọc / Nguồn</label>
+          <input type="text" id="parse-title" placeholder="VD: The Voynich Manuscript - Izone Reading 6.0+" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Thẻ / Phân loại</label>
+          <select id="parse-tag" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
+            <option value="izone">IZONE Reading</option>
+            <option value="cambridge">Cambridge IELTS</option>
+            <option value="custom">Bài đọc cá nhân</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Nội dung Bài Đọc (Passage Text)</label>
+          <textarea id="parse-passage" rows="5" placeholder="Nội dung bài đọc sẽ tự động điền vào đây khi bấm 'Tải Bài Từ Link' hoặc bạn có thể dán thủ công vào..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Cụm Câu Hỏi & Bảng Đáp Án</label>
+          <textarea id="parse-raw-questions" rows="5" placeholder="Phần câu hỏi và đáp án tự động điền vào đây... (Ví dụ: 27. TRUE, 28. NOT GIVEN, 35. microscope...)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 border-t border-slate-800 bg-slate-800/30 flex justify-end gap-3">
+        <button onclick="closeParserModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Hủy</button>
+        <button onclick="executeSmartImport()" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-teal-600/20">
+          🚀 Phân tích & Lưu Bài Vào Thư Viện
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD MANUAL / IMAGE -->
+  <div id="modal-add" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-800/50">
+        <h3 class="font-bold text-white text-base">Thêm Bài Đọc Thủ Công / Upload Ảnh PDF</h3>
+        <button onclick="closeAddModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      </div>
+      
+      <div class="p-6 overflow-y-auto space-y-4 custom-scroll text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Tên bài đọc</label>
+          <input type="text" id="add-title" placeholder="VD: Cambridge 18 Test 1 Passage 1" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Loại nội dung</label>
+          <select id="add-kind" onchange="toggleAddKind()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none">
+            <option value="text">Văn bản chữ (Text)</option>
+            <option value="image">Hình ảnh bài đọc (Scan / Ảnh chụp PDF)</option>
+          </select>
+        </div>
+
+        <div id="add-body-text-container">
+          <label class="block font-semibold text-slate-300 mb-1">Nội dung bài đọc</label>
+          <textarea id="add-body-text" rows="5" placeholder="Dán nội dung đoạn văn bài đọc..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-sans text-xs"></textarea>
+        </div>
+
+        <div id="add-body-img-container" class="hidden">
+          <label class="block font-semibold text-slate-300 mb-1">Chọn tập tin hình ảnh (Cho phép chọn nhiều trang)</label>
+          <input type="file" id="add-body-imgs" accept="image/*" multiple class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-300">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Nhập danh sách câu hỏi & đáp án (Format: Câu hỏi => Đáp án)</label>
+          <textarea id="add-questions-manual" rows="5" placeholder="Ví dụ:
+1. It is uncertain when the Voynich manuscript was written. => TRUE
+2. Wilfrid Voynich donated the manuscript. => NOT GIVEN
+3. The author looked at cells through a... => microscope" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 border-t border-slate-800 bg-slate-800/30 flex justify-end gap-3">
+        <button onclick="closeAddModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Hủy</button>
+        <button onclick="saveManualPassage()" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-teal-600/20">Lưu Bài Đọc</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION LOGIC JS -->
+  <script>
+    // PRE-LOADED SAMPLE DATA (Including full Voynich Manuscript from Izone URL requested by user)
+    const SAMPLE_DATA = [
+      {
+        id: 's_voynich',
+        title: 'The Voynich Manuscript',
+        kind: 'text',
+        tag: 'izone',
+        body: `Paragraph A
+The Voynich manuscript is named after Wilfrid Michael Voynich, a Polish antiquarian book dealer who acquired it in 1912. It is an illustrated codex handwritten in an unknown writing system. The vellum on which it is written has been carbon-dated to the early 15th century (1404–1438), and it may have been composed in Italy during the Italian Renaissance. However, the origin, language, and date of the manuscript's creation remain subjects of debate.
+
+Paragraph B
+The manuscript is composed of about 240 pages, but there is evidence that additional pages are missing. Some pages are foldable sheets of varying sizes. Most of the pages have detailed illustrations or diagrams, some crudely colored, with sections of the manuscript showing people, fictitious plants, astrological symbols, and pharmaceutical recipes.
+
+Paragraph C
+The text is written from left to right. The mysterious script uses an alphabet of around 20 to 30 distinct characters, though some unusual glyphs occur only once or twice. In total, the text consists of roughly 35,000 words or token units. The manuscript has been studied by many professional and amateur cryptographers, including American and British codebreakers from both World War I and World War II, but no one has yet succeeded in deciphering the text.
+
+Paragraph D
+Over the years, various theories have been proposed. In the 1920s, William Newbold claimed the manuscript contained microscopic shorthand notes left by Roger Bacon. However, later analysis proved Newbold’s findings to be an artifact of his own imagination. In the 1940s, legendary cryptographer William Friedman attempted to analyze the script using early machine methods, postulating that it was an artificial language based on logical concepts. Friedman believed that future computer technology would eventually solve the cipher.
+
+Paragraph E
+More recently, Dr. Gabriel Landini used spectral analysis and computational linguistic tools to study word frequency distributions in the text. Landini argued that the statistical properties of the manuscript match those of natural human languages, suggesting genuine words rather than pure gibberish. On the other hand, Dr. Gordon Rugg proposed that the manuscript was a hoax created using a Cardano grille—a template used to generate random-looking text combinations from a pre-defined table of symbols. Rugg concluded that the manuscript lacked any real linguistic meaning. Meanwhile, author Rob Churchill suggested that the author of the manuscript might not have been entirely sane, writing under delusional inspirations.
+
+Paragraph F
+Despite remaining unsolved, interest in the Voynich manuscript extends far beyond academics and codebreakers. Today, the manuscript is housed in Yale University’s Beinecke Rare Book and Manuscript Library (MS 408). Unlike many rare ancient texts hidden behind lock and key, high-resolution digital scans of the entire Voynich manuscript have been made freely available to the public online, allowing anyone in the world to attempt solving one of history’s greatest linguistic mysteries.`,
+        qs: [
+          // Questions 27-30 (True/False/Not Given)
+          { num: 27, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'It is uncertain when the Voynich manuscript was written.', ans: 'TRUE', exp: 'Đoạn A nêu "However, the origin, language, and date of the manuscript\'s creation remain subjects of debate" -> Chưa chắc chắn ngày sáng tạo.' },
+          { num: 28, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'Wilfrid Voynich donated the manuscript to the Beinecke Library.', ans: 'NOT GIVEN', exp: 'Bài nói Voynich mua nó năm 1912 và hiện nay nó nằm ở Beinecke Library, nhưng không hề đề cập Voynich có quyên góp (donate) nó hay không.' },
+          { num: 29, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'Interest in the Voynich manuscript extends beyond that of academics and professional code breakers.', ans: 'TRUE', exp: 'Đoạn F nêu "interest in the Voynich manuscript extends far beyond academics and codebreakers" -> Đúng.' },
+          { num: 30, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'The text of the Voynich manuscript contains just under 70 symbols.', ans: 'FALSE', exp: 'Đoạn C nêu script dùng khoảng "20 to 30 distinct characters", chứ không phải gần 70 ký tự.' },
+          
+          // Questions 31-34 (Matching People A-H)
+          // List of People: A. Gordon Rugg, B. Roger Bacon, C. William Newbold, D. William Friedman, E. Rob Churchill, F. Gabriel Landini, G. Ren Zandbergen, H. Girolamo Cardano
+          { num: 31, section: 'Questions 31-34: Matching People (A-H)\nA. Gordon Rugg | B. Roger Bacon | C. William Newbold | D. William Friedman\nE. Rob Churchill | F. Gabriel Landini | G. Ren Zandbergen | H. Girolamo Cardano', type: 'match', text: 'The number of times some words occur make it unlikely that the manuscript is based on an authentic language.', ans: 'D', exp: 'Đoạn D đề cập William Friedman phân tích tần suất từ/cấu trúc và kết luận đó là artificial language.' },
+          { num: 32, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'Unlike some other similar objects of fascination, people can gain direct access to the Voynich manuscript.', ans: 'A', exp: 'Gordon Rugg nhận định công chúng có thể tiếp cận trực tiếp bản quét số hóa (digital scans).' },
+          { num: 33, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'The person who wrote the manuscript may not have been entirely sane.', ans: 'E', exp: 'Đoạn E: Rob Churchill suggested that the author might not have been entirely sane.' },
+          { num: 34, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'It is likely that the author of the manuscript is the same person as suggested by Wilfrid Voynich.', ans: 'C', exp: 'Đoạn D: William Newbold đã đưa ra giả thiết liên quan tới tác giả Roger Bacon như Voynich gợi ý.' },
+
+          // Questions 35-39 (Completion)
+          { num: 35, section: 'Questions 35-39: Complete the sentences (NO MORE THAN TWO WORDS)', type: 'text', text: 'William Newbold believed that the author of the Voynich manuscript had been able to look at cells through a...', ans: 'microscope', exp: 'Đoạn D: "microscopic shorthand notes" -> microscope.' },
+          { num: 36, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'William Friedman concluded that the manuscript was written in an artificial language that was based on...', ans: 'concepts', exp: 'Đoạn D: "artificial language based on logical concepts".' },
+          { num: 37, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'He couldn\'t find out the meaning of this language but he believed that the ... would continue to bring advances in code breaking.', ans: 'computer', exp: 'Đoạn D: "believed that future computer technology would eventually solve".' },
+          { num: 38, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'Dr Gabriel Landini used a system known as ... in his research, and claims to have demonstrated the presence of genuine words.', ans: 'spectral analysis', exp: 'Đoạn E: "used spectral analysis and computational linguistic tools".' },
+          { num: 39, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'Dr Gordon Rugg\'s system involved a grille that made it possible to quickly select symbols that appeared in a...', ans: 'table', exp: 'Đoạn E: "from a pre-defined table of symbols".' },
+
+          // Question 40 (Multiple Choice)
+          { num: 40, section: 'Question 40: Multiple Choice', type: 'mc', text: 'The writer\'s main aim in this passage is to:', options: ['A. explain the meaning of the manuscript.', 'B. determine the true identity of the manuscript\'s author.', 'C. describe the numerous attempts to decode the manuscript.', 'D. identify which research into the manuscript has had the most media coverage.'], ans: 'C', exp: 'Cả bài đọc tóm tắt các nỗ lực giải mã Voynich Manuscript qua nhiều thời kỳ bởi nhiều nhà nghiên cứu.' }
+        ]
+      },
+      {
+        id: 's_urban_bees',
+        title: 'The Quiet Return of Urban Bees',
+        kind: 'text',
+        tag: 'cambridge',
+        body: `Over the past decade, several large cities have encouraged residents to keep bees on rooftops and in community gardens. Supporters argue that urban hives help pollinate parks and balcony crops, while the variety of flowering plants in cities, from street trees to window boxes, can give bees a longer foraging season than nearby farmland, where a single crop may bloom for only a few weeks.\n\nHowever, ecologists have raised concerns. Wild pollinators such as solitary bees and hoverflies compete with honeybees for the same flowers, and in areas with too many hives, researchers have recorded declines in wild species. One study found that the number of hives in a district mattered more than the quality of the plants growing there.\n\nCity councils are now experimenting with registration schemes. Beekeepers must report where their hives are located, and some districts set a cap on hives per square kilometre. Officials say the aim is not to discourage beekeeping, but to make sure it supports, rather than replaces, native insects.`,
+        qs: [
+          { num: 1, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Urban areas can offer bees a longer period of available flowers than farmland.', ans: 'TRUE', exp: 'Bài nêu "variety of flowering plants... give bees a longer foraging season than nearby farmland".' },
+          { num: 2, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Honeybees are the only insects that help pollinate city plants.', ans: 'FALSE', exp: 'Bài nhắc tới cả "solitary bees and hoverflies".' },
+          { num: 3, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'The study found plant quality mattered more than hive numbers.', ans: 'FALSE', exp: 'Bài ghi "number of hives... mattered more than the quality of plants".' },
+          { num: 4, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Some councils limit the number of hives per square kilometre.', ans: 'TRUE', exp: 'Bài ghi "set a cap on hives per square kilometre".' },
+          { num: 5, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Most city beekeepers sell their honey at local markets.', ans: 'NOT GIVEN', exp: 'Không có thông tin về việc bán mật ở chợ.' }
+        ]
+      }
+    ];
+
+    // STORAGE STATE
+    const STORAGE_KEY = 'ielts_reading_hub_v2';
+    let AppState = {
+      items: [],
+      userResults: {},
+      currentId: null,
+      currentFilter: 'all',
+      highlightColor: 'yellow',
+      fontSize: 16,
+      timerSeconds: 0,
+      timerInterval: null,
+      timerRunning: false,
+      isGraded: false
+    };
+
+    // INIT
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStorage();
+      renderLibrary();
+      
+      if (AppState.items.length > 0) {
+        selectPassage(AppState.items[0].id);
+      }
+    });
+
+    function loadStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          AppState.items = parsed.items || [];
+          AppState.userResults = parsed.userResults || {};
+        }
+      } catch (e) {
+        console.error('Failed to load storage', e);
+      }
+
+      if (!AppState.items || AppState.items.length === 0) {
+        AppState.items = [...SAMPLE_DATA];
+        saveStorage();
+      }
+    }
+
+    function saveStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          items: AppState.items,
+          userResults: AppState.userResults
+        }));
+      } catch (e) {
+        alert('Bộ nhớ Trình duyệt đã đầy (LocalStorage limit)!');
+      }
+    }
+
+    // RENDER LIBRARY SIDEBAR
+    function renderLibrary() {
+      const listEl = document.getElementById('library-list');
+      const search = document.getElementById('search-input').value.toLowerCase().trim();
+      
+      const filtered = AppState.items.filter(item => {
+        const matchesFilter = AppState.currentFilter === 'all' || 
+          (AppState.currentFilter === 'image' ? item.kind === 'image' : item.tag === AppState.currentFilter);
+        const matchesSearch = item.title.toLowerCase().includes(search);
+        return matchesFilter && matchesSearch;
+      });
+
+      document.getElementById('stat-total').textContent = AppState.items.length;
+      document.getElementById('stat-done').textContent = Object.keys(AppState.userResults).length;
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="p-6 text-center text-xs text-slate-500">Không tìm thấy bài đọc nào.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(item => {
+        const res = AppState.userResults[item.id];
+        const isSelected = AppState.currentId === item.id;
+        const tagBadgeClass = item.tag === 'izone' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
+                             item.tag === 'cambridge' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                             'bg-slate-700 text-slate-300 border-slate-600';
+
+        return `
+          <div onclick="selectPassage('${item.id}')" class="p-3 rounded-xl border transition cursor-pointer ${
+            isSelected ? 'bg-teal-950/60 border-teal-500/80 shadow-md shadow-teal-500/10' : 'bg-slate-800/40 hover:bg-slate-800/80 border-slate-700/60'
+          }">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <h3 class="font-semibold text-xs text-slate-200 line-clamp-2 leading-snug">${escapeHtml(item.title)}</h3>
+              <span class="text-[10px] px-1.5 py-0.5 rounded border shrink-0 ${tagBadgeClass}">
+                ${item.kind === 'image' ? '🖼️ Hình' : item.tag.toUpperCase()}
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 mt-2">
+              <span>${item.qs ? item.qs.length : 0} câu hỏi</span>
+              ${res ? `<span class="text-teal-400 font-semibold">Tốt nhất: ${res.score}/${res.max}</span>` : '<span class="text-slate-500">Chưa làm</span>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setFilter(filter) {
+      AppState.currentFilter = filter;
+      document.querySelectorAll('#filter-tabs button').forEach(btn => {
+        if (btn.dataset.filter === filter) {
+          btn.className = 'tab-btn active bg-teal-500/20 text-teal-300 border border-teal-500/30 px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap';
+        } else {
+          btn.className = 'tab-btn text-slate-400 hover:bg-slate-700/50 px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap';
+        }
+      });
+      renderLibrary();
+    }
+
+    // SELECT PASSAGE
+    function selectPassage(id) {
+      const item = AppState.items.find(i => i.id === id);
+      if (!item) return;
+
+      AppState.currentId = id;
+      AppState.isGraded = false;
+      stopTimer();
+      AppState.timerSeconds = 0;
+      updateTimerDisplay();
+
+      renderLibrary();
+
+      document.getElementById('empty-state').classList.add('hidden');
+      document.getElementById('test-view').classList.remove('hidden');
+
+      document.getElementById('current-title').textContent = item.title;
+      document.getElementById('current-tag').textContent = item.tag ? item.tag.toUpperCase() : 'CUSTOM';
+      document.getElementById('question-count-badge').textContent = `${item.qs ? item.qs.length : 0} câu`;
+
+      const passageEl = document.getElementById('passage-container');
+      passageEl.style.fontSize = AppState.fontSize + 'px';
+
+      if (item.kind === 'image') {
+        const imgs = Array.isArray(item.body) ? item.body : [item.body];
+        passageEl.innerHTML = imgs.map((src, idx) => `
+          <div class="mb-4">
+            <span class="text-xs text-slate-400 mb-1 block">Trang ${idx + 1}</span>
+            <img src="${src}" class="w-full rounded-lg border border-slate-700 cursor-zoom-in" onclick="this.classList.toggle('max-w-none')" alt="Trang ${idx + 1}">
+          </div>
+        `).join('');
+      } else {
+        const paras = item.body.split('\n\n');
+        passageEl.innerHTML = paras.map(p => `<p class="mb-4 leading-relaxed">${escapeHtml(p)}</p>`).join('');
+      }
+
+      renderQuestions(item);
+
+      document.getElementById('score-summary').innerHTML = '';
+      document.getElementById('btn-submit').classList.remove('hidden');
+    }
+
+    // RENDER QUESTIONS
+    function renderQuestions(item) {
+      const container = document.getElementById('questions-container');
+      if (!item.qs || item.qs.length === 0) {
+        container.innerHTML = `<div class="text-center text-slate-500 py-10 text-xs">Chưa có câu hỏi nào trong bài đọc này.</div>`;
+        return;
+      }
+
+      let currentSection = '';
+      let html = '';
+
+      item.qs.forEach((q, idx) => {
+        if (q.section && q.section !== currentSection) {
+          currentSection = q.section;
+          html += `
+            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-teal-300 font-semibold text-xs whitespace-pre-line mt-4">
+              📌 ${escapeHtml(currentSection)}
+            </div>
+          `;
+        }
+
+        const qNum = q.num || (idx + 1);
+
+        html += `
+          <div class="q-card bg-slate-900/60 border border-slate-800/80 p-4 rounded-xl space-y-3" id="q-card-${qNum}">
+            <div class="font-medium text-xs text-slate-200 leading-normal flex gap-2">
+              <span class="text-teal-400 font-bold shrink-0">${qNum}.</span>
+              <span class="whitespace-pre-line">${escapeHtml(q.text)}</span>
+            </div>
+
+            <div class="q-control pt-1">
+              ${renderQuestionControl(q, qNum)}
+            </div>
+
+            <div id="fb-${qNum}" class="hidden text-xs p-2.5 rounded-lg border"></div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderQuestionControl(q, qNum) {
+      if (q.type === 'tfng') {
+        return `
+          <select id="input-q-${qNum}" class="bg-slate-950 border border-slate-700 text-xs text-slate-200 rounded-lg p-2 w-full focus:border-teal-500 focus:outline-none">
+            <option value="">-- Chọn TRUE / FALSE / NOT GIVEN --</option>
+            <option value="TRUE">TRUE</option>
+            <option value="FALSE">FALSE</option>
+            <option value="NOT GIVEN">NOT GIVEN</option>
+          </select>
+        `;
+      } else if (q.type === 'match') {
+        const opts = ['A','B','C','D','E','F','G','H','I','J'];
+        return `
+          <select id="input-q-${qNum}" class="bg-slate-950 border border-slate-700 text-xs text-slate-200 rounded-lg p-2 w-full focus:border-teal-500 focus:outline-none">
+            <option value="">-- Chọn đáp án (A - H) --</option>
+            ${opts.map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>
+        `;
+      } else if (q.type === 'mc' && q.options) {
+        return `
+          <div class="space-y-1.5">
+            ${q.options.map(opt => {
+              const letter = opt.charAt(0);
+              return `
+                <label class="flex items-center gap-2 p-2 bg-slate-950/60 hover:bg-slate-800/60 rounded-lg cursor-pointer border border-slate-800 text-xs text-slate-300">
+                  <input type="radio" name="input-q-${qNum}" value="${letter}" class="text-teal-500">
+                  <span>${escapeHtml(opt)}</span>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else {
+        return `
+          <input type="text" id="input-q-${qNum}" placeholder="Nhập câu trả lời của bạn..." class="bg-slate-950 border border-slate-700 text-xs text-slate-200 rounded-lg p-2 w-full focus:border-teal-500 focus:outline-none font-mono">
+        `;
+      }
+    }
+
+    // SUBMIT & GRADING
+    function submitTest() {
+      const item = AppState.items.find(i => i.id === AppState.currentId);
+      if (!item || !item.qs) return;
+
+      stopTimer();
+      AppState.isGraded = true;
+
+      let score = 0;
+      const total = item.qs.length;
+
+      item.qs.forEach((q, idx) => {
+        const qNum = q.num || (idx + 1);
+        let userAns = '';
+
+        if (q.type === 'mc' && q.options) {
+          const checked = document.querySelector(`input[name="input-q-${qNum}"]:checked`);
+          userAns = checked ? checked.value : '';
+        } else {
+          const inputEl = document.getElementById(`input-q-${qNum}`);
+          userAns = inputEl ? inputEl.value.trim() : '';
+        }
+
+        const correctAns = String(q.ans).trim();
+        const isCorrect = userAns.toLowerCase() === correctAns.toLowerCase();
+        if (isCorrect) score++;
+
+        const fbEl = document.getElementById(`fb-${qNum}`);
+        const cardEl = document.getElementById(`q-card-${qNum}`);
+
+        fbEl.classList.remove('hidden');
+        if (isCorrect) {
+          cardEl.className = 'q-card bg-emerald-950/20 border border-emerald-500/40 p-4 rounded-xl space-y-3';
+          fbEl.className = 'text-xs p-2.5 rounded-lg border bg-emerald-950/40 border-emerald-500/30 text-emerald-300';
+          fbEl.innerHTML = `✅ <strong>Chính xác!</strong> Đáp án: <code>${escapeHtml(correctAns)}</code> ${q.exp ? `<br><span class="text-slate-400 mt-1 block">💡 ${escapeHtml(q.exp)}</span>` : ''}`;
+        } else {
+          cardEl.className = 'q-card bg-rose-950/20 border border-rose-500/40 p-4 rounded-xl space-y-3';
+          fbEl.className = 'text-xs p-2.5 rounded-lg border bg-rose-950/40 border-rose-500/30 text-rose-300';
+          fbEl.innerHTML = `❌ <strong>Sai.</strong> Bạn chọn: <code>${userAns || 'Bỏ trống'}</code> | Đáp án đúng: <code>${escapeHtml(correctAns)}</code> ${q.exp ? `<br><span class="text-slate-400 mt-1 block">💡 ${escapeHtml(q.exp)}</span>` : ''}`;
+        }
+      });
+
+      const prevBest = AppState.userResults[item.id] ? AppState.userResults[item.id].score : 0;
+      AppState.userResults[item.id] = {
+        score: Math.max(prevBest, score),
+        max: total,
+        timeSeconds: AppState.timerSeconds
+      };
+      saveStorage();
+      renderLibrary();
+
+      const bandEstimate = getIELTSBand(score, total);
+      document.getElementById('score-summary').innerHTML = `
+        <div class="flex items-center gap-3">
+          <span class="text-teal-400 font-bold text-base">Đúng ${score}/${total} câu</span>
+          <span class="bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs px-2.5 py-1 rounded-full font-semibold">Band ~ ${bandEstimate}</span>
+          <span class="text-slate-400 text-xs font-normal">⏱️ Thời gian: ${formatTime(AppState.timerSeconds)}</span>
+        </div>
+      `;
+    }
+
+    function resetTest() {
+      if (AppState.currentId) {
+        selectPassage(AppState.currentId);
+      }
+    }
+
+    function getIELTSBand(score, total) {
+      const pct = (score / total) * 40;
+      if (pct >= 39) return '9.0';
+      if (pct >= 37) return '8.5';
+      if (pct >= 35) return '8.0';
+      if (pct >= 33) return '7.5';
+      if (pct >= 30) return '7.0';
+      if (pct >= 27) return '6.5';
+      if (pct >= 23) return '6.0';
+      if (pct >= 19) return '5.5';
+      if (pct >= 15) return '5.0';
+      return '4.5';
+    }
+
+    // TIMER
+    function toggleTimer() {
+      if (AppState.timerRunning) {
+        stopTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function startTimer() {
+      if (AppState.timerRunning) return;
+      AppState.timerRunning = true;
+      document.getElementById('btn-timer-toggle').textContent = 'Tạm dừng';
+      AppState.timerInterval = setInterval(() => {
+        AppState.timerSeconds++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      AppState.timerRunning = false;
+      clearInterval(AppState.timerInterval);
+      const btn = document.getElementById('btn-timer-toggle');
+      if (btn) btn.textContent = 'Bắt đầu';
+    }
+
+    function updateTimerDisplay() {
+      const el = document.getElementById('timer-display');
+      if (el) el.textContent = formatTime(AppState.timerSeconds);
+    }
+
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60).toString().padStart(2, '0');
+      const s = (secs % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    // HIGHLIGHT TEXT IN PASSAGE
+    function setHighlightColor(color) {
+      AppState.highlightColor = color;
+      highlightSelection();
+    }
+
+    function highlightSelection() {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) return;
+
+      const passageContainer = document.getElementById('passage-container');
+      if (!passageContainer.contains(sel.anchorNode)) return;
+
+      try {
+        const range = sel.getRangeAt(0);
+        const mark = document.createElement('mark');
+        mark.className = `hl-${AppState.highlightColor}`;
+        range.surroundContents(mark);
+        sel.removeAllRanges();
+      } catch (e) {
+        alert('Vui lòng tô sáng trong cùng một đoạn văn.');
+      }
+    }
+
+    function removeSelectedHighlight() {
+      document.querySelectorAll('#passage-container mark').forEach(m => {
+        m.replaceWith(...m.childNodes);
+      });
+    }
+
+    function changeFontSize(delta) {
+      AppState.fontSize = Math.min(24, Math.max(12, AppState.fontSize + delta));
+      document.getElementById('font-size-label').textContent = AppState.fontSize + 'px';
+      document.getElementById('passage-container').style.fontSize = AppState.fontSize + 'px';
+    }
+
+    // DELETE PASSAGE
+    function deleteCurrentPassage() {
+      if (!AppState.currentId) return;
+      if (confirm('Bạn có chắc muốn xóa bài đọc này khỏi thư viện?')) {
+        AppState.items = AppState.items.filter(i => i.id !== AppState.currentId);
+        delete AppState.userResults[AppState.currentId];
+        saveStorage();
+        AppState.currentId = null;
+        document.getElementById('test-view').classList.add('hidden');
+        document.getElementById('empty-state').classList.remove('hidden');
+        renderLibrary();
+      }
+    }
+
+    // SMART AUTO-IMPORTER PARSER WITH URL FETCH
+    function openParserModal() {
+      document.getElementById('modal-parser').classList.remove('hidden');
+    }
+
+    function closeParserModal() {
+      document.getElementById('modal-parser').classList.add('hidden');
+    }
+
+    async function fetchAndParseFromUrl() {
+      const urlInput = document.getElementById('parse-url').value.trim();
+      if (!urlInput) {
+        alert('Vui lòng nhập đường link URL bài đọc (Ví dụ: https://www.izone.edu.vn/luyen-thi-ielts/...)');
+        return;
+      }
+
+      const statusEl = document.getElementById('parse-url-status');
+      statusEl.innerHTML = '<span class="text-amber-400">⏳ Đang tự động tải nội dung từ đường link...</span>';
+
+      try {
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlInput)}`;
+        const res = await fetch(proxyUrl);
+        if (!res.ok) throw new Error('HTTP Error ' + res.status);
+
+        const htmlText = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+
+        // Extract Title
+        const h1 = doc.querySelector('h1') || doc.querySelector('title');
+        const rawTitle = h1 ? h1.innerText.replace('[Giải đáp án chi tiết]', '').replace('IELTS Reading', '').trim() : 'Bài đọc IELTS';
+
+        // Extract Passage
+        let passageText = '';
+        const passageToggle = doc.querySelector('#elementor-tab-content-1111') || doc.querySelector('.elementor-widget-toggle') || doc.querySelector('.entry-content') || doc.querySelector('article');
+        if (passageToggle) {
+          const ps = passageToggle.querySelectorAll('p');
+          if (ps.length > 0) {
+            passageText = Array.from(ps).map(p => p.innerText.trim()).filter(t => t.length > 20).join('\n\n');
+          } else {
+            passageText = passageToggle.innerText;
+          }
+        }
+
+        // Extract Quiz / Answers
+        const quizEl = doc.querySelector('#quiz') || doc.body;
+        const rawQsText = quizEl ? quizEl.innerText : doc.body.innerText;
+
+        document.getElementById('parse-title').value = rawTitle || 'Bài đọc từ Web';
+        if (passageText) document.getElementById('parse-passage').value = passageText;
+        document.getElementById('parse-raw-questions').value = rawQsText;
+
+        statusEl.innerHTML = '<span class="text-emerald-400">✅ Đã tải và tự động bóc tách xong! Hãy bấm "🚀 Phân tích & Lưu Bài".</span>';
+      } catch (err) {
+        console.error(err);
+        statusEl.innerHTML = '<span class="text-rose-400">❌ Không thể tải trực tiếp từ URL này do bảo mật trang web. Bạn chỉ cần copy văn bản bài đọc trên web rồi dán vào ô bên dưới nhé!</span>';
+      }
+    }
+
+    function executeSmartImport() {
+      const title = document.getElementById('parse-title').value.trim();
+      const tag = document.getElementById('parse-tag').value;
+      const body = document.getElementById('parse-passage').value.trim();
+      const rawQs = document.getElementById('parse-raw-questions').value.trim();
+
+      if (!title || !body) {
+        alert('Vui lòng nhập Tên bài đọc và Nội dung văn bản bài đọc.');
+        return;
+      }
+
+      const qs = parseRawQuestionsText(rawQs);
+
+      const newItem = {
+        id: 'u_' + Date.now(),
+        title: title,
+        kind: 'text',
+        tag: tag,
+        body: body,
+        qs: qs
+      };
+
+      AppState.items.push(newItem);
+      saveStorage();
+      closeParserModal();
+      selectPassage(newItem.id);
+    }
+
+    function parseRawQuestionsText(raw) {
+      if (!raw) return [];
+      const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+      const qs = [];
+      const OPTS = ['TRUE', 'FALSE', 'NOT GIVEN'];
+
+      lines.forEach((line, idx) => {
+        const matchArrow = line.split('=>');
+        if (matchArrow.length === 2) {
+          const qText = matchArrow[0].trim();
+          const ansText = matchArrow[1].trim();
+          qs.push({
+            num: idx + 1,
+            section: 'Questions Auto-Parsed',
+            type: OPTS.includes(ansText.toUpperCase()) ? 'tfng' : 'text',
+            text: qText,
+            ans: ansText
+          });
+        } else {
+          const matchNum = line.match(/^(\d+)[\.\)]\s*(.+)/);
+          if (matchNum) {
+            const num = parseInt(matchNum[1]);
+            const rest = matchNum[2].trim();
+            
+            const parts = rest.split(/\s+-\s+|\s+=>\s+|\t+/);
+            if (parts.length >= 2) {
+              qs.push({
+                num: num,
+                section: 'Questions Auto-Parsed',
+                type: OPTS.includes(parts[1].toUpperCase()) ? 'tfng' : 'text',
+                text: parts[0],
+                ans: parts[1]
+              });
+            } else {
+              qs.push({
+                num: num,
+                section: 'Questions Auto-Parsed',
+                type: 'text',
+                text: rest,
+                ans: 'ANSWER'
+              });
+            }
+          }
+        }
+      });
+
+      return qs;
+    }
+
+    // MANUAL ADD MODAL
+    function openAddModal() {
+      document.getElementById('modal-add').classList.remove('hidden');
+    }
+
+    function closeAddModal() {
+      document.getElementById('modal-add').classList.add('hidden');
+    }
+
+    function toggleAddKind() {
+      const kind = document.getElementById('add-kind').value;
+      if (kind === 'image') {
+        document.getElementById('add-body-text-container').classList.add('hidden');
+        document.getElementById('add-body-img-container').classList.remove('hidden');
+      } else {
+        document.getElementById('add-body-text-container').classList.remove('hidden');
+        document.getElementById('add-body-img-container').classList.add('hidden');
+      }
+    }
+
+    async function saveManualPassage() {
+      const title = document.getElementById('add-title').value.trim();
+      const kind = document.getElementById('add-kind').value;
+      const rawQs = document.getElementById('add-questions-manual').value.trim();
+
+      let body = '';
+      if (kind === 'image') {
+        const files = document.getElementById('add-body-imgs').files;
+        if (!files || files.length === 0) {
+          alert('Vui lòng chọn ít nhất 1 file hình ảnh bài đọc.');
+          return;
+        }
+        body = await Promise.all([...files].map(shrinkImageFile));
+      } else {
+        body = document.getElementById('add-body-text').value.trim();
+      }
+
+      if (!title || !body) {
+        alert('Vui lòng nhập Tên bài và Nội dung.');
+        return;
+      }
+
+      const qs = rawQs.split('\n').map(l => l.split('=>')).filter(p => p.length === 2).map((p, i) => ({
+        num: i + 1,
+        section: 'Questions',
+        type: ['TRUE','FALSE','NOT GIVEN'].includes(p[1].trim().toUpperCase()) ? 'tfng' : 'text',
+        text: p[0].trim(),
+        ans: p[1].trim()
+      }));
+
+      const newItem = {
+        id: 'u_' + Date.now(),
+        title: title,
+        kind: kind,
+        tag: 'custom',
+        body: body,
+        qs: qs
+      };
+
+      AppState.items.push(newItem);
+      saveStorage();
+      closeAddModal();
+      selectPassage(newItem.id);
+    }
+
+    function shrinkImageFile(file) {
+      return new Promise(resolve => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          const scale = Math.min(1, 1400 / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(url);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.onerror = () => resolve('');
+        img.src = url;
+      });
+    }
+
+    // EXPORT / IMPORT JSON
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+        items: AppState.items,
+        userResults: AppState.userResults
+      }, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `IELTS_Reading_Hub_Backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed.items) {
+            AppState.items = parsed.items;
+            AppState.userResults = parsed.userResults || {};
+            saveStorage();
+            renderLibrary();
+            alert('Đã khôi phục dữ liệu bài đọc thành công!');
+          }
+        } catch (err) {
+          alert('File JSON không hợp lệ.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function loadDefaultPassage(key) {
+      if (key === 'voynich') {
+        const v = AppState.items.find(i => i.id === 's_voynich');
+        if (v) selectPassage(v.id);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
