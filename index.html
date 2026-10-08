@@ -45,6 +45,9 @@
       <button id="btn-add" onclick="openAddModal()" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
         <span>+ Thêm thủ công / Ảnh</span>
       </button>
+      <button id="btn-sync" onclick="syncSetup()" class="bg-sky-700 hover:bg-sky-600 text-white text-xs px-2.5 py-2 rounded-lg border border-sky-500 transition" title="Đồng bộ bài đọc và điểm giữa các thiết bị">
+        ☁️ Đồng bộ
+      </button>
       <button onclick="exportData()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-2.5 py-2 rounded-lg border border-slate-600 transition" title="Xuất dữ liệu JSON backup">
         📥 Export JSON
       </button>
@@ -405,6 +408,7 @@ City councils are now experimenting with registration schemes. Beekeepers must r
       if (AppState.items.length > 0) {
         selectPassage(AppState.items[0].id);
       }
+      if (getSyncToken()) syncNow(true);
     });
 
     function loadStorage() {
@@ -414,6 +418,7 @@ City councils are now experimenting with registration schemes. Beekeepers must r
           const parsed = JSON.parse(raw);
           AppState.items = parsed.items || [];
           AppState.userResults = parsed.userResults || {};
+          AppState.updatedAt = parsed.updatedAt || 0;
         }
       } catch (e) {
         console.error('Failed to load storage', e);
@@ -425,12 +430,15 @@ City councils are now experimenting with registration schemes. Beekeepers must r
       }
     }
 
-    function saveStorage() {
+    function saveStorage(stamp = true) {
+      if (stamp) AppState.updatedAt = Date.now();
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           items: AppState.items,
-          userResults: AppState.userResults
+          userResults: AppState.userResults,
+          updatedAt: AppState.updatedAt || 0
         }));
+        if (stamp) scheduleCloudPush();
       } catch (e) {
         alert('Bộ nhớ Trình duyệt đã đầy (LocalStorage limit)!');
       }
@@ -1262,6 +1270,80 @@ City councils are now experimenting with registration schemes. Beekeepers must r
         img.onerror = () => resolve('');
         img.src = url;
       });
+    }
+
+    // ======================= ĐỒNG BỘ CLOUD (Cloudflare KV qua Worker) =======================
+    const SYNC_URL = WORKER_PROXY_BASE.replace('/?url=', '/sync');
+    const SYNC_TOKEN_KEY = 'ielts_hub_sync_token';
+    let syncTimer = null;
+    let syncBusy = false;
+
+    function getSyncToken() {
+      try { return localStorage.getItem(SYNC_TOKEN_KEY) || ''; } catch (e) { return ''; }
+    }
+
+    function setSyncLabel(text) {
+      const b = document.getElementById('btn-sync');
+      if (b) b.textContent = text;
+    }
+
+    function scheduleCloudPush() {
+      if (!getSyncToken() || syncBusy) return;
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(() => syncNow(false), 1500);
+    }
+
+    async function syncNow(silent) {
+      const token = getSyncToken();
+      if (!token || syncBusy) return;
+      syncBusy = true;
+      setSyncLabel('☁️ Đang đồng bộ...');
+      try {
+        const res = await fetch(SYNC_URL, { headers: { 'X-Sync-Token': token } });
+        if (res.status === 401) throw new Error('Sai mã đồng bộ');
+        if (!res.ok) throw new Error('Worker trả về lỗi HTTP ' + res.status);
+        const remote = await res.json();
+        const remoteTime = remote.updatedAt || 0;
+        const localTime = AppState.updatedAt || 0;
+
+        if (remote.items && remoteTime > localTime) {
+          // Bản trên cloud mới hơn -> lấy về máy này
+          AppState.items = remote.items;
+          AppState.userResults = remote.userResults || {};
+          AppState.updatedAt = remoteTime;
+          saveStorage(false);
+          renderLibrary();
+          const cur = AppState.items.find(i => i.id === AppState.currentId);
+          if (!cur && AppState.items.length) selectPassage(AppState.items[0].id);
+        } else if (localTime > remoteTime) {
+          // Bản trên máy này mới hơn -> đẩy lên cloud
+          const put = await fetch(SYNC_URL, {
+            method: 'PUT',
+            headers: { 'X-Sync-Token': token, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: AppState.items, userResults: AppState.userResults, updatedAt: localTime })
+          });
+          if (!put.ok) throw new Error('Không lưu được lên cloud (HTTP ' + put.status + ')');
+        }
+        setSyncLabel('☁️ Đã đồng bộ');
+      } catch (err) {
+        console.error('[sync]', err);
+        setSyncLabel('☁️ Lỗi đồng bộ');
+        if (!silent) alert('Đồng bộ lỗi: ' + err.message);
+      } finally {
+        syncBusy = false;
+      }
+    }
+
+    function syncSetup() {
+      const cur = getSyncToken();
+      const input = prompt('Nhập mã đồng bộ (cùng một mã trên mọi thiết bị).\nĐể trống rồi OK = tắt đồng bộ.', cur);
+      if (input === null) return;
+      try {
+        if (input.trim()) localStorage.setItem(SYNC_TOKEN_KEY, input.trim());
+        else localStorage.removeItem(SYNC_TOKEN_KEY);
+      } catch (e) {}
+      if (input.trim()) syncNow(false);
+      else setSyncLabel('☁️ Đồng bộ');
     }
 
     // EXPORT / IMPORT JSON
