@@ -97,11 +97,8 @@
           Hỗ trợ tự động kết nối Cloudflare Worker trích xuất bài đọc, OCR đọc chữ từ ảnh với Tesseract.js và chấm điểm chi tiết.
         </p>
         <div class="flex flex-wrap justify-center gap-3">
-          <button onclick="loadDefaultPassage('info_theory')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
-            📖 Mở bài "Information Theory – The Big Idea" (IZONE)
-          </button>
-          <button onclick="loadDefaultPassage('voynich')" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
-            📖 Mở bài "The Voynich Manuscript" (IZONE)
+          <button onclick="loadDefaultPassage('sample')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
+            📖 Mở bài mẫu "The Quiet Return of Urban Bees"
           </button>
           <button onclick="openParserModal()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow">
             ⚡ Tải Bài Từ Link URL Bất Kỳ
@@ -339,9 +336,9 @@
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Nhập danh sách câu hỏi & đáp án (Format: Câu hỏi => Đáp án)</label>
           <textarea id="add-questions-manual" rows="5" placeholder="Ví dụ:
-1. It is uncertain when the Voynich manuscript was written. => TRUE
-2. Wilfrid Voynich donated the manuscript. => NOT GIVEN
-3. The author looked at cells through a... => microscope" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
+1. The writer supports the use of urban beehives. => TRUE
+2. Honey sales are the main income of city beekeepers. => NOT GIVEN
+3. Councils limit the number of ... per square kilometre. => hives" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-teal-500 focus:outline-none font-mono text-xs"></textarea>
         </div>
       </div>
 
@@ -357,86 +354,29 @@
     // CLOUDFLARE WORKER PROXY CONSTANT
     const WORKER_PROXY_BASE = 'https://reading-proxy.phamngocthanh02contact.workers.dev/?url=';
 
-    // PRE-LOADED SAMPLE DATA
+    // BÀI MẪU (văn bản tự soạn, không lấy từ đề thi nào)
     const SAMPLE_DATA = [
       {
-        id: 's_info_theory',
-        title: 'Information Theory – The Big Idea',
+        id: 's_sample',
+        title: 'Sample – The Quiet Return of Urban Bees',
         kind: 'text',
-        tag: 'izone',
+        tag: 'custom',
         body: `Paragraph A
-In April 2002 an event took place which demonstrated one of the many applications of information theory. The space probe, Voyager I, launched in 1977, had sent back spectacular images of Jupiter and Saturn and then soared out of the Solar System on a one-way mission to the stars. After 25 years of exposure to the freezing temperatures of deep space, the probe was beginning to show its age. Sensors and circuits were on the brink of failing and NASA experts realized that they had to do something or lose contact with their probe forever. The solution was to get a message to Voyager I to instruct it to use spares to change the failing parts. With the probe 12 billion kilometers from Earth, this was not an easy task. By means of a radio dish belonging to NASA’s Deep Space Network, the message was sent out into the depths of space. Even travelling at the speed of light, it took over 11 hours to reach its target, far beyond the orbit of Pluto. Yet, incredibly, the little probe managed to hear the faint call from its home planet, and successfully made the switchover.
+Over the past decade, several large cities have encouraged residents to keep bees on rooftops and in community gardens. Supporters argue that urban hives help pollinate parks and balcony crops, while the variety of flowering plants in cities, from street trees to window boxes, can give bees a longer foraging season than nearby farmland, where a single crop may bloom for only a few weeks.
 
 Paragraph B
-It was the longest-distance repair job in history, and a triumph for the NASA engineers. But it also highlighted the astonishing power of the techniques developed by American communications engineer Claude Shannon, who had died just a year earlier. Born in 1916 in Petoskey, Michigan, Shannon showed an early talent for maths and for building gadgets, and made breakthroughs in the foundations of computer technology when still a student. While at Bell laboratories, Shannon developed information theory, but shunned the resulting acclaim. In the 1940s, he singlehandedly created an entire science of communication which has since inveigled its way into a host of applications, from DVDs to satellite communication to bar codes – any area, in short, where data has to be conveyed rapidly yet accurately.
+However, ecologists have raised concerns. Wild pollinators such as solitary bees and hoverflies compete with honeybees for the same flowers, and in areas with too many hives, researchers have recorded declines in wild species. One study found that the number of hives in a district mattered more than the quality of the plants growing there.
 
 Paragraph C
-This all seems light years away from the down-to-earth uses Shannon originally had for his work, which began when he was a 22-year-old graduate engineering student at the prestigious Massachusetts Institute of Technology in 1939. He set out with an apparently simple aim: to pin down the precise meaning of the concept of 'information'. The most basic form of information, Shannon argued, is whether something is true or false – which can be captured in the binary unit, or 'bit', of the form 1 or 0. Having identified this fundamental unit, Shannon set about defining otherwise vague ideas about information and how to transmit it from place to place. In the process he discovered something surprising: it is always possible to guarantee information will get through random interference – 'noise' – intact.
-
-Paragraph D
-Noise usually means unwanted sounds which interfere with genuine information. Information theory generalizes this idea via theorems that capture the effects of noise with mathematical precision. In particular, Shannon showed that noise sets a limit on the rate at which information can pass along communication channels while remaining error-free. This rate depends on the relative strengths of the signal and noise travelling down the communication channel, and on its capacity (its 'bandwidth'). The resulting limit, given in units of bits per second, is the absolute maximum rate of error-free communication given signal strength and noise level. The trick, Shannon showed, is to find ways of packaging up – 'coding' – information to cope with the ravages of noise, while staying within the information carrying capacity 'bandwidth' – of the communication system being used.
-
-Paragraph E
-Over the years scientists have devised many such coding methods, and they have proved crucial in many technological feats. The Voyager spacecraft transmitted data using codes which added one extra bit for every single bit of information; the result was an error rate of just one bit in 10,000 — and stunningly clear pictures of the planets. Other codes have become parts of everyday life – such as the Universal Product Code, or bar code, which uses a simple error-detecting system that ensures supermarket check-out lasers can read the price even on, say, a crumpled bag of crisps. As recently as 1993, engineers made a major breakthrough by discovering so-called turbo codes – which come very close to Shannon’s ultimate limit for the maximum rate that data can be transmitted reliably, and now play a key role in the mobile videophone revolution.
-
-Paragraph F
-Shannon also laid the foundations of more efficient ways of storing information, by stripping out superfluous ('redundant') bits from data which contributed little real information. As mobile phone text messages like 'I CN C U' show, it is often possible to leave out a lot of data without losing much meaning. As with error correction, however, there's a limit beyond which messages become too ambiguous. Shannon showed how to calculate this limit, opening the way to the design of compression methods that cram maximum information into the minimum space.`,
+City councils are now experimenting with registration schemes. Beekeepers must report where their hives are located, and some districts set a cap on hives per square kilometre. Officials say the aim is not to discourage beekeeping, but to make sure it supports, rather than replaces, native insects.`,
         qs: [
-          { num: 27, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'an explanation of the factors affecting the transmission of information', ans: 'D', exp: 'Đoạn D giải thích các yếu tố như noise (nhiễu), bandwidth (băng thông) và signal strength.' },
-          { num: 28, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'an example of how unnecessary information can be omitted', ans: 'F', exp: 'Đoạn F đưa ra ví dụ tin nhắn SMS "I CN C U" chứng minh việc bớt thông tin thừa.' },
-          { num: 29, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'a reference to Shannon\'s attitude to fame', ans: 'B', exp: 'Đoạn B nêu Shannon "shunned the resulting acclaim" (tránh xa danh tiếng).' },
-          { num: 30, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'details of a machine capable of interpreting incomplete information', ans: 'E', exp: 'Đoạn E nhắc tới laser siêu thị đọc mã vạch trên vỏ khoai tây chiên bị nhăn.' },
-          { num: 31, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'a detailed account of an incident involving information theory', ans: 'A', exp: 'Đoạn A kể chi tiết sự cố tàu vũ trụ Voyager I gửi tín hiệu sửa chữa từ ngoài vũ trụ.' },
-          { num: 32, section: 'Questions 27-32: Which paragraph contains the following information? (A-F)', type: 'match', text: 'a reference to what Shannon initially intended to achieve in his research', ans: 'C', exp: 'Đoạn C nêu mục tiêu ban đầu năm 1939: "to pin down the precise meaning of concept of information".' },
-          { num: 33, section: 'Questions 33-39: Complete the notes below (NO MORE THAN TWO WORDS)', type: 'text', text: 'The Voyager I Space Probe transmitted pictures of both ...', ans: 'Jupiter', exp: 'Đoạn A: "images of Jupiter and Saturn".' },
-          { num: 34, section: 'Questions 33-39: Complete the notes', type: 'text', text: '... and then left the Solar System.', ans: 'Saturn', exp: 'Đoạn A: "Jupiter and Saturn".' },
-          { num: 35, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'and soared out of the ...', ans: 'Solar System', exp: 'Đoạn A: "out of the Solar System".' },
-          { num: 36, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'Scientists feared that both the ... and circuits were on the brink of failing.', ans: 'Sensors', exp: 'Đoạn A: "Sensors and circuits were on the brink of failing".' },
-          { num: 37, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'Sensors and ... were on the brink of failing.', ans: 'Circuits', exp: 'Đoạn A: "Sensors and circuits".' },
-          { num: 38, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'The solution was to instruct it to use ... to change failing parts.', ans: 'Spares', exp: 'Đoạn A: "instruct it to use spares".' },
-          { num: 39, section: 'Questions 33-39: Complete the notes', type: 'text', text: 'By means of a ... belonging to NASA\'s Deep Space Network.', ans: 'Radio dish', exp: 'Đoạn A: "radio dish belonging to NASA\'s Deep Space Network".' },
-          { num: 40, section: 'Questions 40-42: True / False / Not Given', type: 'tfng', text: 'The concept of describing something as true or false was the starting point for Shannon in his attempts to send messages.', ans: 'TRUE', exp: 'Đoạn C: "The most basic form... whether something is true or false - which can be captured in binary bit".' },
-          { num: 41, section: 'Questions 40-42: True / False / Not Given', type: 'tfng', text: 'The amount of information that can be sent in a given time period is determined with reference to signal strength and noise level.', ans: 'TRUE', exp: 'Đoạn D: "maximum rate... given signal strength and noise level".' },
-          { num: 42, section: 'Questions 40-42: True / False / Not Given', type: 'tfng', text: 'Products have now been developed which can convey more information than Shannon had anticipated as possible.', ans: 'FALSE', exp: 'Đoạn E: Turbo codes "come very close to Shannon\'s ultimate limit", chứ không vượt qua được hạn mức Shannon đưa ra.' }
-        ]
-      },
-      {
-        id: 's_voynich',
-        title: 'The Voynich Manuscript',
-        kind: 'text',
-        tag: 'izone',
-        body: `Paragraph A
-The Voynich manuscript is named after Wilfrid Michael Voynich, a Polish antiquarian book dealer who acquired it in 1912. It is an illustrated codex handwritten in an unknown writing system. The vellum on which it is written has been carbon-dated to the early 15th century (1404–1438), and it may have been composed in Italy during the Italian Renaissance. However, the origin, language, and date of the manuscript's creation remain subjects of debate.
-
-Paragraph B
-The manuscript is composed of about 240 pages, but there is evidence that additional pages are missing. Some pages are foldable sheets of varying sizes. Most of the pages have detailed illustrations or diagrams, some crudely colored, with sections of the manuscript showing people, fictitious plants, astrological symbols, and pharmaceutical recipes.
-
-Paragraph C
-The text is written from left to right. The mysterious script uses an alphabet of around 20 to 30 distinct characters, though some unusual glyphs occur only once or twice. In total, the text consists of roughly 35,000 words or token units. The manuscript has been studied by many professional and amateur cryptographers, including American and British codebreakers from both World War I and World War II, but no one has yet succeeded in deciphering the text.
-
-Paragraph D
-Over the years, various theories have been proposed. In the 1920s, William Newbold claimed the manuscript contained microscopic shorthand notes left by Roger Bacon. However, later analysis proved Newbold’s findings to be an artifact of his own imagination. In the 1940s, legendary cryptographer William Friedman attempted to analyze the script using early machine methods, postulating that it was an artificial language based on logical concepts. Friedman believed that future computer technology would eventually solve the cipher.
-
-Paragraph E
-More recently, Dr. Gabriel Landini used spectral analysis and computational linguistic tools to study word frequency distributions in the text. Landini argued that the statistical properties of the manuscript match those of natural human languages, suggesting genuine words rather than pure gibberish. On the other hand, Dr. Gordon Rugg proposed that the manuscript was a hoax created using a Cardano grille—a template used to generate random-looking text combinations from a pre-defined table of symbols. Rugg concluded that the manuscript lacked any real linguistic meaning. Meanwhile, author Rob Churchill suggested that the author of the manuscript might not have been entirely sane, writing under delusional inspirations.
-
-Paragraph F
-Despite remaining unsolved, interest in the Voynich manuscript extends far beyond academics and codebreakers. Today, the manuscript is housed in Yale University’s Beinecke Rare Book and Manuscript Library (MS 408). Unlike many rare ancient texts hidden behind lock and key, high-resolution digital scans of the entire Voynich manuscript have been made freely available to the public online, allowing anyone in the world to attempt solving one of history’s greatest linguistic mysteries.`,
-        qs: [
-          { num: 27, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'It is uncertain when the Voynich manuscript was written.', ans: 'TRUE', exp: 'Đoạn A: "date of manuscript\'s creation remain subjects of debate".' },
-          { num: 28, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'Wilfrid Voynich donated the manuscript to the Beinecke Library.', ans: 'NOT GIVEN', exp: 'Không đề cập đến việc Voynich quyên góp.' },
-          { num: 29, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'Interest in the Voynich manuscript extends beyond that of academics and professional code breakers.', ans: 'TRUE', exp: 'Đoạn F: "extends far beyond academics and codebreakers".' },
-          { num: 30, section: 'Questions 27-30: True / False / Not Given', type: 'tfng', text: 'The text of the Voynich manuscript contains just under 70 symbols.', ans: 'FALSE', exp: 'Đoạn C: "20 to 30 distinct characters".' },
-          { num: 31, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'The number of times some words occur make it unlikely that the manuscript is based on an authentic language.', ans: 'D', exp: 'William Friedman phân tích tần suất từ.' },
-          { num: 32, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'Unlike some other similar objects of fascination, people can gain direct access to the Voynich manuscript.', ans: 'A', exp: 'Gordon Rugg đề cập đến digital scans công khai.' },
-          { num: 33, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'The person who wrote the manuscript may not have been entirely sane.', ans: 'E', exp: 'Rob Churchill gợi ý tác giả không hoàn toàn tỉnh táo.' },
-          { num: 34, section: 'Questions 31-34: Matching People (A-H)', type: 'match', text: 'It is likely that the author of the manuscript is the same person as suggested by Wilfrid Voynich.', ans: 'C', exp: 'William Newbold giả thiết tác giả Roger Bacon.' },
-          { num: 35, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'William Newbold believed that the author had been able to look at cells through a...', ans: 'microscope', exp: 'microscope.' },
-          { num: 36, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'William Friedman concluded that the manuscript was written in an artificial language based on...', ans: 'concepts', exp: 'concepts.' },
-          { num: 37, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'He believed that the ... would continue to bring advances in code breaking.', ans: 'computer', exp: 'computer.' },
-          { num: 38, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'Dr Gabriel Landini used a system known as ... in his research.', ans: 'spectral analysis', exp: 'spectral analysis.' },
-          { num: 39, section: 'Questions 35-39: Complete the sentences', type: 'text', text: 'Dr Gordon Rugg\'s system involved a grille to select symbols from a...', ans: 'table', exp: 'table.' },
-          { num: 40, section: 'Question 40: Multiple Choice', type: 'mc', text: 'The writer\'s main aim in this passage is to:', options: ['A. explain the meaning of the manuscript.', 'B. determine the true identity of the manuscript\'s author.', 'C. describe the numerous attempts to decode the manuscript.', 'D. identify which research had the most media coverage.'], ans: 'C', exp: 'Describe the attempts to decode.' }
+          { num: 1, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Urban areas can offer bees a longer period of available flowers than farmland.', ans: 'TRUE', exp: 'Đoạn A: thành phố có nhiều loài hoa nở, mùa kiếm ăn dài hơn đất nông nghiệp.' },
+          { num: 2, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Honeybees are the only insects that help pollinate city plants.', ans: 'FALSE', exp: 'Đoạn B nhắc đến ong đơn độc và ruồi hoa cũng là loài thụ phấn.' },
+          { num: 3, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'The study found plant quality mattered more than hive numbers.', ans: 'FALSE', exp: 'Đoạn B: số lượng tổ ong quan trọng hơn chất lượng cây.' },
+          { num: 4, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Some councils limit the number of hives per square kilometre.', ans: 'TRUE', exp: 'Đoạn C: một số quận đặt giới hạn số tổ ong trên mỗi km vuông.' },
+          { num: 5, section: 'Questions 1-5: True / False / Not Given', type: 'tfng', text: 'Most city beekeepers sell their honey at local markets.', ans: 'NOT GIVEN', exp: 'Bài không nói gì về việc bán mật ong.' },
+          { num: 6, section: 'Questions 6-7: Which paragraph contains the following information? (A-C)', type: 'match', text: 'a rule that beekeepers must report hive locations', ans: 'C', exp: 'Đoạn C.' },
+          { num: 7, section: 'Questions 6-7: Which paragraph contains the following information? (A-C)', type: 'match', text: 'a worry about competition between insects', ans: 'B', exp: 'Đoạn B.' }
         ]
       }
     ];
@@ -587,7 +527,12 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
         `).join('');
       } else {
         const paras = item.body.split('\n\n');
-        passageEl.innerHTML = paras.map(p => `<p class="mb-4 leading-relaxed">${escapeHtml(p)}</p>`).join('');
+        passageEl.innerHTML = paras.map(p => {
+          const m = p.match(/^(Paragraph [A-H])\n([\s\S]*)$/);
+          return m
+            ? `<p class="mb-4 leading-relaxed"><span class="font-bold text-teal-300 mr-2">${escapeHtml(m[1])}</span>${escapeHtml(m[2])}</p>`
+            : `<p class="mb-4 leading-relaxed">${escapeHtml(p)}</p>`;
+        }).join('');
       }
 
       renderQuestions(item);
@@ -856,6 +801,106 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
       document.getElementById('modal-parser').classList.add('hidden');
     }
 
+    // ======================= TÁCH NỘI DUNG TỪ HTML =======================
+    const ANSWER_CELL_RE = /^\d+\.\s*(?:Answer:?\s*)?\S.{0,39}$/i;
+
+    // innerText không hoạt động trên tài liệu tạo bằng DOMParser (không có xuống dòng),
+    // nên tự duyệt DOM: khối -> xuống dòng, ô bảng -> tab, <img> -> dấu [[IMG:url]].
+    function domToText(root, baseUrl) {
+      const BLOCK = new Set(['P','DIV','SECTION','ARTICLE','MAIN','H1','H2','H3','H4','H5','H6','LI','UL','OL','TR','TABLE','BLOCKQUOTE','FIGURE','FIGCAPTION','PRE','HR','LABEL','FORM','TBODY','THEAD','TFOOT']);
+      const SKIP = new Set(['INPUT','SELECT','OPTION','TEXTAREA','BUTTON']);
+      let out = '';
+      let cellDepth = 0;
+      const walk = (n) => {
+        if (n.nodeType === 3) { out += n.nodeValue.replace(/\s+/g, ' '); return; }
+        if (n.nodeType !== 1) return;
+        const tag = n.tagName.toUpperCase();
+        if (SKIP.has(tag)) return;
+        if (tag === 'BR') { out += cellDepth ? ' ' : '\n'; return; }
+        if (tag === 'IMG') {
+          const raw = n.getAttribute('data-lazy-src') || n.getAttribute('data-src') || n.getAttribute('data-original') || n.getAttribute('src') || '';
+          if (!raw || raw.startsWith('data:')) return;
+          const w = parseInt(n.getAttribute('width') || '0', 10);
+          const h = parseInt(n.getAttribute('height') || '0', 10);
+          if ((w && w < 120) || (h && h < 120)) return;
+          let abs = raw;
+          try { abs = new URL(raw, baseUrl).href; } catch (e) {}
+          if (/logo|favicon|avatar|icon|emoji|gravatar|sales_button/i.test(abs)) return;
+          out += '\n[[IMG:' + abs + ']]\n';
+          return;
+        }
+        const isCell = tag === 'TD' || tag === 'TH';
+        const isBlock = BLOCK.has(tag);
+        if (isBlock) out += cellDepth ? ' ' : '\n';
+        if (isCell) cellDepth++;
+        n.childNodes.forEach(walk);
+        if (isCell) { cellDepth--; out += '\t'; }
+        if (isBlock) out += cellDepth ? ' ' : '\n';
+      };
+      walk(root);
+      return out;
+    }
+
+    function cleanTitle(t) {
+      return t.replace(/\s+/g, ' ')
+        .replace(/\[?Giải đáp án chi tiết\]?|Giải thích đáp án chi tiết|Đáp án và giải thích chi tiết|Đáp án và giải chi tiết|Giải chi tiết|Giải đáp án|IELTS Reading( answers?)?|\bwith answers?\b/gi, '')
+        .replace(/\s+/g, ' ').replace(/^[\s:–-]+|[\s:–-]+$/g, '');
+    }
+
+    // Trả về { title, passage, images[], rawQuestions }
+    function extractFromHtml(htmlText, baseUrl) {
+      const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+      ['nav', 'header', 'footer', 'aside', 'script', 'style', 'noscript', 'iframe', 'svg', '.sidebar', '#masthead', '.comments', '.advertisement', '.popup-maker']
+        .forEach(sel => doc.querySelectorAll(sel).forEach(e => e.remove()));
+
+      const h1 = doc.querySelector('h1');
+      const title = cleanTitle(h1 ? h1.textContent : (doc.title || ''));
+
+      const lines = domToText(doc.body, baseUrl)
+        .split('\n')
+        .map(l => l.replace(/\u00a0/g, ' ').replace(/ +/g, ' ').trim())
+        .filter(Boolean);
+
+      // Vị trí dòng "Questions N" đầu tiên = hết phần bài đọc
+      let endIdx = lines.findIndex(l => /^Questions?\s*\d+/i.test(l));
+      if (endIdx < 0) endIdx = lines.findIndex(l => /^(Complete|Choose|Do the following|Which paragraph|Look at the following|Match|Classify)\b/i.test(l));
+      if (endIdx < 0) endIdx = lines.length;
+
+      // Bài đọc bắt đầu sau dòng "Bài đọc ..." cuối cùng trước phần câu hỏi (bỏ qua mục lục)
+      let startIdx = -1;
+      lines.forEach((l, i) => { if (i < endIdx && /^Bài đọc\b/i.test(l)) startIdx = i; });
+
+      // Bài đọc: gom đoạn, gắn nhãn A, B, C...; gom ảnh
+      const images = [];
+      const paras = [];
+      let label = '';
+      lines.slice(startIdx + 1, endIdx).forEach(l => {
+        const im = l.match(/^\[\[IMG:(.+)\]\]$/);
+        if (im) { if (!images.includes(im[1])) images.push(im[1]); return; }
+        if (/^Bài đọc\b/i.test(l) || l.includes('\t')) return;
+        if (/^[A-H]$/.test(l)) { label = l; return; }
+        paras.push(label ? `Paragraph ${label}\n${l}` : l);
+        label = '';
+      });
+      const passage = paras.join('\n\n');
+
+      // Câu hỏi: từ "Questions" đến trước dòng "Điểm số" hoặc bảng đáp án
+      let stopIdx = lines.findIndex((l, i) => i >= endIdx && (/Điểm số|Kiểm tra đáp án|^Đáp án/i.test(l) || l.includes('\t')));
+      if (stopIdx < 0) stopIdx = lines.length;
+      const qLines = lines.slice(endIdx, stopIdx).filter(l => !/^\[\[IMG:/.test(l));
+
+      // Bảng đáp án: các dòng liên tiếp có ô dạng "27. TRUE" hoặc "1. Answer: E"
+      const ansRows = [];
+      let started = false;
+      for (const l of lines.slice(stopIdx)) {
+        if (l.split('\t').some(c => ANSWER_CELL_RE.test(c.trim()))) { ansRows.push(l); started = true; }
+        else if (started) break;
+      }
+
+      const rawQuestions = qLines.join('\n') + '\n\n--- ĐÁP ÁN ---\n' + ansRows.join('\n');
+      return { title, passage, images, rawQuestions, questionLines: qLines.length, answerRows: ansRows.length };
+    }
+
     async function fetchAndParseFromWorker() {
       const urlInput = document.getElementById('parse-url').value.trim();
       if (!urlInput) {
@@ -865,17 +910,24 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
 
       const statusEl = document.getElementById('parse-url-status');
       const btnEl = document.getElementById('btn-fetch-worker');
-      
+
       statusEl.innerHTML = '<span class="text-amber-400 flex items-center gap-1">⏳ Đang kết nối tới Cloudflare Worker proxy...</span>';
       btnEl.disabled = true;
       btnEl.classList.add('opacity-50');
 
+      // Xóa dữ liệu của lần import trước
+      document.getElementById('parse-title').value = '';
+      document.getElementById('parse-passage').value = '';
+      document.getElementById('parse-raw-questions').value = '';
+      document.getElementById('ocr-section').classList.add('hidden');
+      AppState.detectedImages = [];
+
       try {
-        // Step 1: Call Cloudflare Worker
-        const proxyUrl = WORKER_PROXY_BASE + encodeURIComponent(urlInput);
-        const res = await fetch(proxyUrl);
+        const res = await fetch(WORKER_PROXY_BASE + encodeURIComponent(urlInput));
         if (!res.ok) {
-          throw new Error(`Worker trả về lỗi HTTP ${res.status}: ${res.statusText}`);
+          let detail = '';
+          try { detail = (await res.text()).slice(0, 120); } catch (e) {}
+          throw new Error(`Worker trả về lỗi HTTP ${res.status}${detail ? ' – ' + detail : ''}`);
         }
 
         const htmlText = await res.text();
@@ -883,92 +935,30 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
           throw new Error('Dữ liệu nhận về từ trang web rỗng hoặc quá ngắn.');
         }
 
-        // Step 2: Parse HTML with DOMParser
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
+        const r = extractFromHtml(htmlText, urlInput);
+        console.log('[import] kết quả tách:', { title: r.title, chuBaiDoc: r.passage.length, anh: r.images.length, dongCauHoi: r.questionLines, dongDapAn: r.answerRows });
 
-        // Remove nav, header, footer, script, style, junk
-        const junk = ['nav', 'header', 'footer', 'script', 'style', 'noscript', 'iframe', '.sidebar', '#masthead', '.comments', '.advertisement', '.popup-maker'];
-        junk.forEach(s => doc.querySelectorAll(s).forEach(e => e.remove()));
-
-        // Extract Title
-        const h1 = doc.querySelector('h1') || doc.querySelector('title');
-        let title = h1 ? h1.innerText : 'Bài đọc IELTS từ Web';
-        title = title.replace(/\[Giải đáp án chi tiết\]|Đáp án và giải chi tiết|IELTS Reading|Giải chi tiết/gi, '').trim();
-
-        // Main content container search: article, .entry-content, main, .elementor-widget-wrap, #content
-        const mainContent = doc.querySelector('.entry-content, article, main, .elementor-widget-wrap, #content') || doc.body;
-
-        // Step 3: Check for text content
-        const pList = Array.from(mainContent.querySelectorAll('p, li'))
-          .map(p => p.innerText.trim())
-          .filter(t => t.length > 20 && !t.includes('Copyright') && !t.startsWith('http'));
-
-        const textContent = pList.join('\n\n');
-
-        // Check for images inside main content
-        const imgs = Array.from(mainContent.querySelectorAll('img'));
-        AppState.detectedImages = [];
-
-        imgs.forEach((img, i) => {
-          let src = img.getAttribute('src') || img.getAttribute('data-src');
-          if (!src) return;
-          try {
-            src = new URL(src, urlInput).href;
-          } catch(e) {}
-
-          const width = parseInt(img.getAttribute('width') || '0');
-          const height = parseInt(img.getAttribute('height') || '0');
-          const isIcon = src.includes('logo') || src.includes('favicon') || src.includes('avatar') || (width > 0 && width < 120 && height > 0 && height < 120);
-
-          if (!isIcon && (src.includes('uploads') || src.includes('reading') || src.includes('wp-content') || width >= 300 || src.match(/\.(png|jpg|jpeg|webp)/i))) {
-            AppState.detectedImages.push({
-              id: 'img_' + i,
-              url: src,
-              alt: img.getAttribute('alt') || `Ảnh bài đọc ${i + 1}`
-            });
-          }
-        });
-
-        // Step 5: Extract Questions & Answer Key Table
-        let quizText = '';
-        const quizEl = doc.querySelector('#quiz') || doc.querySelector('.quiz-container');
-        if (quizEl) {
-          quizText = quizEl.innerText;
-        } else {
-          quizText = mainContent.innerText;
+        if (!r.passage && r.images.length === 0) {
+          throw new Error('Đã tải được trang nhưng không tìm thấy phần bài đọc (không có chữ lẫn hình). Có thể trang này có cấu trúc khác');
         }
 
-        // Answer key table
-        const tables = doc.querySelectorAll('table');
-        let tableText = '';
-        tables.forEach(table => {
-          if (table.innerText.includes('TRUE') || table.innerText.includes('FALSE') || table.innerText.includes('27.') || table.innerText.includes('1.')) {
-            tableText += '\n' + table.innerText;
-          }
-        });
+        document.getElementById('parse-title').value = r.title || 'Bài đọc từ Web';
+        document.getElementById('parse-passage').value = r.passage.length > 100 ? r.passage : '';
+        document.getElementById('parse-raw-questions').value = r.rawQuestions;
 
-        if (tableText) quizText += '\n\n--- BẢNG ĐÁP ÁN TRÍCH XUẤT ---\n' + tableText;
+        AppState.detectedImages = r.images.map((u, i) => ({ id: 'img_' + i, url: u, alt: `Ảnh bài đọc ${i + 1}` }));
 
-        // Render extracted values into Preview Form
-        document.getElementById('parse-title').value = title || 'Bài đọc từ Web';
-        if (textContent.length > 100) {
-          document.getElementById('parse-passage').value = textContent;
-        }
-        document.getElementById('parse-raw-questions').value = quizText;
-
-        // Render Image Checklist if images detected
         const ocrSec = document.getElementById('ocr-section');
         const checklistEl = document.getElementById('image-checklist');
+        const hasText = r.passage.length > 100;
 
-        if (AppState.detectedImages.length > 0) {
+        if (AppState.detectedImages.length > 0 && !hasText) {
           ocrSec.classList.remove('hidden');
           document.getElementById('detected-img-count').textContent = AppState.detectedImages.length;
-
           checklistEl.innerHTML = AppState.detectedImages.map((img, idx) => `
             <label class="bg-slate-900 border border-slate-700 hover:border-violet-500 rounded-lg p-2 flex flex-col items-center gap-1.5 cursor-pointer relative group">
-              <input type="checkbox" class="img-select-cb absolute top-2 left-2 text-violet-500" value="${img.url}" checked>
-              <img src="${WORKER_PROXY_BASE + encodeURIComponent(img.url)}" class="h-20 object-cover rounded border border-slate-800 w-full" alt="${img.alt}" onerror="this.src='https://placehold.co/100x100?text=Ảnh'">
+              <input type="checkbox" class="img-select-cb absolute top-2 left-2 text-violet-500" value="${escapeHtml(img.url)}" checked>
+              <img src="${WORKER_PROXY_BASE + encodeURIComponent(img.url)}" class="h-20 object-cover rounded border border-slate-800 w-full" alt="${escapeHtml(img.alt)}" onerror="this.src='https://placehold.co/100x100?text=Ảnh'">
               <span class="text-[10px] text-slate-400 truncate w-full text-center">Trang ${idx + 1}</span>
             </label>
           `).join('');
@@ -976,11 +966,13 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
           ocrSec.classList.add('hidden');
         }
 
-        statusEl.innerHTML = `<span class="text-emerald-400">✅ Đã kết nối Worker & bóc tách thành công! ${textContent ? 'Tìm thấy phần chữ bài đọc.' : 'Bài đọc nằm trong hình ảnh bên dưới.'}</span>`;
+        const parsedQs = parseRawQuestionsText(r.rawQuestions);
+        const qInfo = parsedQs.length ? `Tách được ${parsedQs.length} câu hỏi.` : 'Chưa tách được câu hỏi, hãy kiểm tra ô câu hỏi bên dưới.';
+        statusEl.innerHTML = `<span class="text-emerald-400">✅ Đã tải xong. ${hasText ? 'Tìm thấy phần chữ bài đọc.' : 'Bài đọc nằm trong hình ảnh, hãy bấm nút OCR bên dưới.'} ${qInfo}</span>`;
 
       } catch (err) {
-        console.error(err);
-        statusEl.innerHTML = `<span class="text-rose-400 font-semibold">❌ Lỗi: ${escapeHtml(err.message)}. Vui lòng kiểm tra lại URL hoặc kết nối Worker.</span>`;
+        console.error('[import] lỗi:', err);
+        statusEl.innerHTML = `<span class="text-rose-400 font-semibold">❌ Lỗi: ${escapeHtml(err.message)}.</span>`;
       } finally {
         btnEl.disabled = false;
         btnEl.classList.remove('opacity-50');
@@ -1075,6 +1067,7 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
       }
 
       const qs = parseRawQuestionsText(rawQs);
+      if (qs.length === 0 && !confirm('Chưa tách được câu hỏi nào. Vẫn lưu bài đọc?')) return;
 
       const newItem = {
         id: 'u_' + Date.now(),
@@ -1091,53 +1084,100 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
       selectPassage(newItem.id);
     }
 
+    // Tách câu hỏi + đáp án từ văn bản thô.
+    // Hỗ trợ: (1) "câu hỏi => đáp án"; (2) danh sách câu hỏi + bảng đáp án kiểu "27. TRUE" / "1. Answer: E".
     function parseRawQuestionsText(raw) {
       if (!raw) return [];
-      const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-      const qs = [];
       const OPTS = ['TRUE', 'FALSE', 'NOT GIVEN'];
+      const all = raw.replace(/\r/g, '').split('\n').map(l => l.replace(/\*\*|^#+\s*|^>\s*/g, '').trim());
 
-      lines.forEach((line, idx) => {
-        const matchArrow = line.split('=>');
-        if (matchArrow.length === 2) {
-          const qText = matchArrow[0].trim();
-          const ansText = matchArrow[1].trim();
-          qs.push({
-            num: idx + 1,
-            section: 'Questions Auto-Parsed',
-            type: OPTS.includes(ansText.toUpperCase()) ? 'tfng' : 'text',
-            text: qText,
-            ans: ansText
-          });
-        } else {
-          const matchNum = line.match(/^(\d+)[\.\)]\s*(.+)/);
-          if (matchNum) {
-            const num = parseInt(matchNum[1]);
-            const rest = matchNum[2].trim();
-            
-            const parts = rest.split(/\s+-\s+|\s+=>\s+|\t+/);
-            if (parts.length >= 2) {
-              qs.push({
-                num: num,
-                section: 'Questions Auto-Parsed',
-                type: OPTS.includes(parts[1].toUpperCase()) ? 'tfng' : 'text',
-                text: parts[0],
-                ans: parts[1]
-              });
-            } else {
-              qs.push({
-                num: num,
-                section: 'Questions Auto-Parsed',
-                type: 'text',
-                text: rest,
-                ans: 'ANSWER'
-              });
-            }
-          }
+      // (1) Định dạng thủ công
+      if (all.filter(l => l.includes('=>')).length >= 2) {
+        const out = [];
+        all.forEach(l => {
+          const parts = l.split('=>');
+          if (parts.length !== 2) return;
+          let text = parts[0].trim();
+          const ans = parts[1].trim();
+          let num = out.length + 1;
+          const m = text.match(/^(\d+)[.)]\s*(.*)$/);
+          if (m) { num = parseInt(m[1], 10); text = m[2]; }
+          out.push({ num, section: 'Questions', type: OPTS.includes(ans.toUpperCase()) ? 'tfng' : 'text', text, ans: OPTS.includes(ans.toUpperCase()) ? ans.toUpperCase() : ans });
+        });
+        return out;
+      }
+
+      // (2) Định dạng của trang web
+      const stop = all.findIndex(l => /^-{2,}\s*ĐÁP ÁN|Điểm số|Kiểm tra đáp án|^Đáp án/i.test(l) || l.includes('\t') || /^\d+\.\s*Answer:/i.test(l));
+      const qPart = stop < 0 ? all : all.slice(0, stop);
+      const tail = stop < 0 ? [] : all.slice(stop);
+
+      // Đáp án (ưu tiên dạng có chữ "Answer:", lần xuất hiện đầu tiên được giữ)
+      const answers = {};
+      const cells = [];
+      tail.forEach(l => l.split(/\t|\|/).forEach(c => cells.push(c.trim())));
+      const take = (re) => cells.forEach(c => {
+        const m = c.match(re);
+        if (m && !(m[1] in answers)) answers[m[1]] = m[2].trim().replace(/[.\s]+$/, '');
+      });
+      take(/^(\d+)\.\s*Answer:?\s*(.{1,60})$/i);
+      take(/^(\d+)\.\s*(.{1,30})$/);
+
+      // Câu hỏi và các nhóm đề bài
+      const NOISE = /^(TRUE|FALSE|NOT GIVEN|YES|NO|[A-J])$/i;
+      const HEAD = /^Questions?\s*\d+/i;
+      const sections = [];
+      const newSection = () => { const s = { lines: [], from: null }; sections.push(s); return s; };
+      let sec = newSection();
+      const qs = {};
+      let cur = null;
+
+      qPart.forEach(l => {
+        if (!l || NOISE.test(l)) return;
+        const qm = l.match(/^(\d+)[.)]\s+(.+)/);
+        if (qm) {
+          const n = parseInt(qm[1], 10);
+          if (sec.from === null) sec.from = n;
+          qs[n] = { text: qm[2].trim(), sec, options: [] };
+          cur = n;
+          return;
         }
+        const om = cur !== null && l.match(/^[-*•]?\s*([A-J])[.)]\s+(.+)/);
+        if (om) { qs[cur].options.push(`${om[1]}. ${om[2].trim()}`); return; }
+        if (cur !== null || (HEAD.test(l) && sec.lines.some(x => HEAD.test(x)))) { sec = newSection(); cur = null; }
+        sec.lines.push(l);
+        const hm = l.match(/^Questions?\s*(\d+)/i) || l.match(/boxes\s+(\d+)/i);
+        if (hm && sec.from === null) sec.from = parseInt(hm[1], 10);
       });
 
-      return qs;
+      const findSection = (n) => {
+        if (qs[n]) return qs[n].sec;
+        let best = sections[0];
+        sections.forEach(s => { if (s.from !== null && s.from <= n) best = s; });
+        return best;
+      };
+
+      const nums = [...new Set([...Object.keys(qs), ...Object.keys(answers)].map(Number))].sort((a, b) => a - b);
+      return nums.map(n => {
+        const q = qs[n];
+        let ans = answers[n] !== undefined ? answers[n] : '(chưa có đáp án)';
+        const up = ans.toUpperCase();
+        let type = 'text';
+        if (OPTS.includes(up)) { type = 'tfng'; ans = up; }
+        else if (/^[A-J]$/.test(up) && answers[n] !== undefined) {
+          ans = up;
+          type = q && q.options.length ? 'mc' : 'match';
+        }
+        const out = {
+          num: n,
+          section: findSection(n).lines.join('\n') || 'Questions',
+          type,
+          text: q ? q.text : `Chỗ trống số ${n} (xem đoạn tóm tắt ở trên)`,
+          ans
+        };
+        if (type === 'mc') out.options = q.options;
+        return out;
+      });
     }
 
     // MANUAL ADD MODAL
@@ -1260,13 +1300,8 @@ Despite remaining unsolved, interest in the Voynich manuscript extends far beyon
     }
 
     function loadDefaultPassage(key) {
-      if (key === 'info_theory') {
-        const v = AppState.items.find(i => i.id === 's_info_theory');
-        if (v) selectPassage(v.id);
-      } else if (key === 'voynich') {
-        const v = AppState.items.find(i => i.id === 's_voynich');
-        if (v) selectPassage(v.id);
-      }
+      const v = AppState.items.find(i => i.id === 's_sample') || AppState.items[0];
+      if (v) selectPassage(v.id);
     }
 
     function escapeHtml(str) {
